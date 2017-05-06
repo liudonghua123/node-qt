@@ -28,18 +28,16 @@
         'src/QtTest/qtesteventlist.cc'
       ],
       'conditions': [
-        ['OS=="mac"', {
+        ['OS=="mac"', { # mac with qt from homebrew
           'include_dirs': [
-            'deps/qt-4.8.0/darwin/x64/include',
-            'deps/qt-4.8.0/darwin/x64/include/QtCore',
-            'deps/qt-4.8.0/darwin/x64/include/QtGui',
-            'deps/qt-4.8.0/darwin/x64/include/QtTest'
+            '<!@(pkg-config --cflags Qt5Core Qt5Gui Qt5Test Qt5Widgets Qt5Multimedia|sed "s/-D[A-z_]*//g; s/-I//g")',
           ],
           'libraries': [
-            # TODO: fix node-gyp behavior that requires ../
-            '../deps/qt-4.8.0/darwin/x64/lib/QtCore.framework/QtCore', 
-            '../deps/qt-4.8.0/darwin/x64/lib/QtGui.framework/QtGui', 
-            '../deps/qt-4.8.0/darwin/x64/lib/QtTest.framework/QtTest'
+            '<!@(pkg-config --libs Qt5Core Qt5Gui Qt5Test Qt5Widgets Qt5Multimedia|sed \'s,-F[^\ ]*,,g; s, -framework \([A-z_]*\),/\\1.framework,g;\')',
+            'QtCore.framework',
+          ],
+          'mac_framework_dirs': [
+            '<!@(pkg-config --libs Qt5Core Qt5Gui Qt5Test Qt5Widgets Qt5Multimedia|sed \'s, -framework [A-z_]*,,g; s,-F,,g\')',
           ],
         }],
         ['OS=="linux"', {
