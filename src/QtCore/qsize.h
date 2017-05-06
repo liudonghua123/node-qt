@@ -27,16 +27,16 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QSIZEWRAP_H
-#define QSIZEWRAP_H
+#pragma once
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QSize>
 
 class QSizeWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static NAN_MODULE_INIT(Initialize);
   static v8::Handle<v8::Value> NewInstance(QSize q);
   QSize* GetWrapped() const { return q_; };
   void SetWrapped(QSize q) { 
@@ -47,15 +47,13 @@ class QSizeWrap : public node::ObjectWrap {
  private:
   QSizeWrap();
   ~QSizeWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Width(const v8::Arguments& args);
-  static v8::Handle<v8::Value> Height(const v8::Arguments& args);
+  static NAN_METHOD(Width);
+  static NAN_METHOD(Height);
 
   // Wrapped object
   QSize* q_;
 };
-
-#endif

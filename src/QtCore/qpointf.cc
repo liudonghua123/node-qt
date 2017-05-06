@@ -27,17 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qpointf.h"
 
 using namespace v8;
 
-Persistent<Function> QPointFWrap::constructor;
+Nan::Persistent<Function> QPointFWrap::constructor;
 
 // Supported implementations:
 //   QPointF (qreal x, qreal y)
-QPointFWrap::QPointFWrap(const Arguments& args) : q_(NULL) {
+QPointFWrap::QPointFWrap(const Nan::FunctionCallbackInfo<Value>& args) : q_(NULL) {
   if (args[0]->IsNumber() && args[1]->IsNumber()) {
     q_ = new QPointF(args[0]->NumberValue(), args[1]->NumberValue());
   } else {
@@ -49,66 +49,55 @@ QPointFWrap::~QPointFWrap() {
   delete q_;
 }
 
-void QPointFWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QPointFWrap::Initialize) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QPointF"));
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+  tpl->SetClassName(Nan::New("QPointF").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
-
+  
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("x"),
-      FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("y"),
-      FunctionTemplate::New(Y)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("isNull"),
-      FunctionTemplate::New(IsNull)->GetFunction());
-
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QPointF"), constructor);
+  Nan::SetPrototypeMethod(tpl, "x", X);
+  Nan::SetPrototypeMethod(tpl, "y", Y);
+  Nan::SetPrototypeMethod(tpl, "isNull", IsNull);
+  
+  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+  Nan::Set(target, Nan::New("QPointF").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-Handle<Value> QPointFWrap::New(const Arguments& args) {
-  HandleScope scope;
-
-  QPointFWrap* w = new QPointFWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QPointFWrap::New) {
+  Nan::HandleScope scope;
+  
+  QPointFWrap* w = new QPointFWrap(info);
+  w->Wrap(info.This());
 }
 
 Handle<Value> QPointFWrap::NewInstance(QPointF q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
-  QPointFWrap* w = node::ObjectWrap::Unwrap<QPointFWrap>(instance);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
+  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(instance);
   w->SetWrapped(q);
-
-  return scope.Close(instance);
+  
+  return scope.Escape(instance);
 }
 
-Handle<Value> QPointFWrap::X(const Arguments& args) {
-  HandleScope scope;
-
-  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(args.This());
+NAN_METHOD(QPointFWrap::X) {
+  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
-
-  return scope.Close(Number::New(q->x()));
+  
+  info.GetReturnValue().Set(Nan::New<Number>(q->x()));
 }
 
-Handle<Value> QPointFWrap::Y(const Arguments& args) {
-  HandleScope scope;
-
-  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(args.This());
+NAN_METHOD(QPointFWrap::Y) {
+  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
-
-  return scope.Close(Number::New(q->y()));
+  
+  info.GetReturnValue().Set(Nan::New<Number>(q->y()));
 }
 
-Handle<Value> QPointFWrap::IsNull(const Arguments& args) {
-  HandleScope scope;
-
-  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(args.This());
+NAN_METHOD(QPointFWrap::IsNull) {
+  QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
-
-  return scope.Close(Boolean::New(q->isNull()));
+  
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->isNull()));
 }

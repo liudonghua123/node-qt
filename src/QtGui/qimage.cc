@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qimage.h"
 #include "../qt_v8.h"
 
@@ -39,7 +39,7 @@ Persistent<Function> QImageWrap::constructor;
 // Supported implementations:
 //   QImage ( )
 //   QImage ( QString filename )
-QImageWrap::QImageWrap(const Arguments& args) {
+QImageWrap::QImageWrap(const FunctionCallbackInfo<Value>& args) {
   if (args[0]->IsString()) {
     // QImage ( QString filename ) 
     q_ = new QImage(qt_v8::ToQString(args[0]->ToString()));
@@ -57,18 +57,18 @@ QImageWrap::~QImageWrap() {
 void QImageWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QImage"));
+  tpl->SetClassName(Nan::New("QImage").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("isNull"),
+  tpl->PrototypeTemplate()->Set(Nan::New("isNull").ToLocalChecked(),
       FunctionTemplate::New(IsNull)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QImage"), constructor);
+  target->Set(Nan::New("QImage").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QImageWrap::New(const Arguments& args) {
+Handle<Value> QImageWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QImageWrap* w = new QImageWrap(args);
@@ -77,7 +77,7 @@ Handle<Value> QImageWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QImageWrap::IsNull(const Arguments& args) {
+Handle<Value> QImageWrap::IsNull(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QImageWrap* w = ObjectWrap::Unwrap<QImageWrap>(args.This());

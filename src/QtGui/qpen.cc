@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "../qt_v8.h"
 #include "qpen.h"
 #include "qbrush.h"
@@ -42,7 +42,7 @@ Persistent<Function> QPenWrap::constructor;
 //   QPen (QBrush brush, qreal width, Qt::PenStyle style = Qt::SolidLine, Qt::PenCapStyle cap = Qt::SquareCap, Qt::PenJoinStyle join = Qt::BevelJoin )
 //   QPen (QColor color)
 //   QPen ()
-QPenWrap::QPenWrap(const Arguments& args) {
+QPenWrap::QPenWrap(const FunctionCallbackInfo<Value>& args) {
   QString arg0_constructor;
   if (args[0]->IsObject()) {
     arg0_constructor = 
@@ -114,14 +114,14 @@ QPenWrap::~QPenWrap() {
 void QPenWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QPen"));
+  tpl->SetClassName(Nan::New("QPen").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QPen"), constructor);
+  target->Set(Nan::New("QPen").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QPenWrap::New(const Arguments& args) {
+Handle<Value> QPenWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPenWrap* w = new QPenWrap(args);

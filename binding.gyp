@@ -27,6 +27,9 @@
 
         'src/QtTest/qtesteventlist.cc'
       ],
+      'include_dirs' : [
+          '<!(node -e "require(\'nan\')")'
+      ],
       'conditions': [
         ['OS=="mac"', { # mac with qt from homebrew
           'include_dirs': [

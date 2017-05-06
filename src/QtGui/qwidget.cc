@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "../qt_v8.h"
 #include "../QtCore/qsize.h"
 #include "qwidget.h"
@@ -176,62 +176,62 @@ QWidgetWrap::~QWidgetWrap() {
 void QWidgetWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QWidget"));
+  tpl->SetClassName(Nan::New("QWidget").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Wrapped methods
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("resize"),
+  tpl->PrototypeTemplate()->Set(Nan::New("resize").ToLocalChecked(),
       FunctionTemplate::New(Resize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("show"),
+  tpl->PrototypeTemplate()->Set(Nan::New("show").ToLocalChecked(),
       FunctionTemplate::New(Show)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("close"),
+  tpl->PrototypeTemplate()->Set(Nan::New("close").ToLocalChecked(),
       FunctionTemplate::New(Close)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("size"),
+  tpl->PrototypeTemplate()->Set(Nan::New("size").ToLocalChecked(),
       FunctionTemplate::New(Size)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("width"),
+  tpl->PrototypeTemplate()->Set(Nan::New("width").ToLocalChecked(),
       FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("height"),
+  tpl->PrototypeTemplate()->Set(Nan::New("height").ToLocalChecked(),
       FunctionTemplate::New(Height)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("parent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("parent").ToLocalChecked(),
       FunctionTemplate::New(Parent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("objectName"),
+  tpl->PrototypeTemplate()->Set(Nan::New("objectName").ToLocalChecked(),
       FunctionTemplate::New(ObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setObjectName"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setObjectName").ToLocalChecked(),
       FunctionTemplate::New(SetObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("update"),
+  tpl->PrototypeTemplate()->Set(Nan::New("update").ToLocalChecked(),
       FunctionTemplate::New(Update)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("hasMouseTracking"),
+  tpl->PrototypeTemplate()->Set(Nan::New("hasMouseTracking").ToLocalChecked(),
       FunctionTemplate::New(HasMouseTracking)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setMouseTracking"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setMouseTracking").ToLocalChecked(),
       FunctionTemplate::New(SetMouseTracking)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setFocusPolicy"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setFocusPolicy").ToLocalChecked(),
       FunctionTemplate::New(SetFocusPolicy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("move"),
+  tpl->PrototypeTemplate()->Set(Nan::New("move").ToLocalChecked(),
       FunctionTemplate::New(Move)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("x"),
+  tpl->PrototypeTemplate()->Set(Nan::New("x").ToLocalChecked(),
       FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("y"),
+  tpl->PrototypeTemplate()->Set(Nan::New("y").ToLocalChecked(),
       FunctionTemplate::New(Y)->GetFunction());
 
   // Events
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("paintEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("paintEvent").ToLocalChecked(),
       FunctionTemplate::New(PaintEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("mousePressEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("mousePressEvent").ToLocalChecked(),
       FunctionTemplate::New(MousePressEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("mouseReleaseEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("mouseReleaseEvent").ToLocalChecked(),
       FunctionTemplate::New(MouseReleaseEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("mouseMoveEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("mouseMoveEvent").ToLocalChecked(),
       FunctionTemplate::New(MouseMoveEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("keyPressEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("keyPressEvent").ToLocalChecked(),
       FunctionTemplate::New(KeyPressEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("keyReleaseEvent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("keyReleaseEvent").ToLocalChecked(),
       FunctionTemplate::New(KeyReleaseEvent)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QWidget"), constructor);
+  target->Set(Nan::New("QWidget").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QWidgetWrap::New(const Arguments& args) {
+Handle<Value> QWidgetWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
   QWidgetImpl* q_parent = 0;
 
@@ -246,7 +246,7 @@ Handle<Value> QWidgetWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QWidgetWrap::Resize(const Arguments& args) {
+Handle<Value> QWidgetWrap::Resize(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -257,7 +257,7 @@ Handle<Value> QWidgetWrap::Resize(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::Show(const Arguments& args) {
+Handle<Value> QWidgetWrap::Show(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -268,7 +268,7 @@ Handle<Value> QWidgetWrap::Show(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::Close(const Arguments& args) {
+Handle<Value> QWidgetWrap::Close(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -279,7 +279,7 @@ Handle<Value> QWidgetWrap::Close(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::Size(const Arguments& args) {
+Handle<Value> QWidgetWrap::Size(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -288,7 +288,7 @@ Handle<Value> QWidgetWrap::Size(const Arguments& args) {
   return scope.Close( QSizeWrap::NewInstance(q->size()) );
 }
 
-Handle<Value> QWidgetWrap::Width(const Arguments& args) {
+Handle<Value> QWidgetWrap::Width(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -297,7 +297,7 @@ Handle<Value> QWidgetWrap::Width(const Arguments& args) {
   return scope.Close( Integer::New(q->width()) );
 }
 
-Handle<Value> QWidgetWrap::Height(const Arguments& args) {
+Handle<Value> QWidgetWrap::Height(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -306,7 +306,7 @@ Handle<Value> QWidgetWrap::Height(const Arguments& args) {
   return scope.Close( Integer::New(q->height()) );
 }
 
-Handle<Value> QWidgetWrap::ObjectName(const Arguments& args) {
+Handle<Value> QWidgetWrap::ObjectName(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -315,7 +315,7 @@ Handle<Value> QWidgetWrap::ObjectName(const Arguments& args) {
   return scope.Close(qt_v8::FromQString(q->objectName()));
 }
 
-Handle<Value> QWidgetWrap::SetObjectName(const Arguments& args) {
+Handle<Value> QWidgetWrap::SetObjectName(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -332,7 +332,7 @@ Handle<Value> QWidgetWrap::SetObjectName(const Arguments& args) {
 // Qt: Parent() returns QObject
 // Intended mostly for sanity checks
 //
-Handle<Value> QWidgetWrap::Parent(const Arguments& args) {
+Handle<Value> QWidgetWrap::Parent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -345,7 +345,7 @@ Handle<Value> QWidgetWrap::Parent(const Arguments& args) {
 // PaintEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::PaintEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::PaintEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -362,7 +362,7 @@ Handle<Value> QWidgetWrap::PaintEvent(const Arguments& args) {
 // MousePressEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MousePressEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::MousePressEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -379,7 +379,7 @@ Handle<Value> QWidgetWrap::MousePressEvent(const Arguments& args) {
 // MouseReleaseEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MouseReleaseEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::MouseReleaseEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -396,7 +396,7 @@ Handle<Value> QWidgetWrap::MouseReleaseEvent(const Arguments& args) {
 // MouseMoveEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MouseMoveEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::MouseMoveEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -413,7 +413,7 @@ Handle<Value> QWidgetWrap::MouseMoveEvent(const Arguments& args) {
 // KeyPressEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::KeyPressEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::KeyPressEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -430,7 +430,7 @@ Handle<Value> QWidgetWrap::KeyPressEvent(const Arguments& args) {
 // KeyReleaseEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::KeyReleaseEvent(const Arguments& args) {
+Handle<Value> QWidgetWrap::KeyReleaseEvent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -443,7 +443,7 @@ Handle<Value> QWidgetWrap::KeyReleaseEvent(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::Update(const Arguments& args) {
+Handle<Value> QWidgetWrap::Update(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -454,7 +454,7 @@ Handle<Value> QWidgetWrap::Update(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::HasMouseTracking(const Arguments& args) {
+Handle<Value> QWidgetWrap::HasMouseTracking(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -463,7 +463,7 @@ Handle<Value> QWidgetWrap::HasMouseTracking(const Arguments& args) {
   return scope.Close(Boolean::New(q->hasMouseTracking()));
 }
 
-Handle<Value> QWidgetWrap::SetMouseTracking(const Arguments& args) {
+Handle<Value> QWidgetWrap::SetMouseTracking(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -474,7 +474,7 @@ Handle<Value> QWidgetWrap::SetMouseTracking(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::SetFocusPolicy(const Arguments& args) {
+Handle<Value> QWidgetWrap::SetFocusPolicy(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -487,7 +487,7 @@ Handle<Value> QWidgetWrap::SetFocusPolicy(const Arguments& args) {
 
 // Supported implementations:
 //    move (int x, int y)
-Handle<Value> QWidgetWrap::Move(const Arguments& args) {
+Handle<Value> QWidgetWrap::Move(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -498,7 +498,7 @@ Handle<Value> QWidgetWrap::Move(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QWidgetWrap::X(const Arguments& args) {
+Handle<Value> QWidgetWrap::X(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
@@ -507,7 +507,7 @@ Handle<Value> QWidgetWrap::X(const Arguments& args) {
   return scope.Close(Integer::New(q->x()));
 }
 
-Handle<Value> QWidgetWrap::Y(const Arguments& args) {
+Handle<Value> QWidgetWrap::Y(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());

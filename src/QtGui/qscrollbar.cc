@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include "qscrollbar.h"
 
@@ -35,7 +34,7 @@ using namespace v8;
 
 Persistent<Function> QScrollBarWrap::constructor;
 
-QScrollBarWrap::QScrollBarWrap(const Arguments& args) : q_(NULL) {
+QScrollBarWrap::QScrollBarWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
 }
 
 QScrollBarWrap::~QScrollBarWrap() {
@@ -46,20 +45,20 @@ QScrollBarWrap::~QScrollBarWrap() {
 void QScrollBarWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QScrollBar"));
+  tpl->SetClassName(Nan::New("QScrollBar").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("value"),
+  tpl->PrototypeTemplate()->Set(Nan::New("value").ToLocalChecked(),
       FunctionTemplate::New(Value)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setValue"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setValue").ToLocalChecked(),
       FunctionTemplate::New(SetValue)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QScrollBar"), constructor);
+  target->Set(Nan::New("QScrollBar").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QScrollBarWrap::New(const Arguments& args) {
+Handle<Value> QScrollBarWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollBarWrap* w = new QScrollBarWrap(args);
@@ -78,7 +77,7 @@ Handle<Value> QScrollBarWrap::NewInstance(QScrollBar *q) {
   return scope.Close(instance);
 }
 
-Handle<Value> QScrollBarWrap::Value(const Arguments& args) {
+Handle<Value> QScrollBarWrap::Value(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(args.This());
@@ -87,7 +86,7 @@ Handle<Value> QScrollBarWrap::Value(const Arguments& args) {
   return scope.Close(Integer::New(q->value()));
 }
 
-Handle<Value> QScrollBarWrap::SetValue(const Arguments& args) {
+Handle<Value> QScrollBarWrap::SetValue(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(args.This());

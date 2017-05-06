@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "../qt_v8.h"
 #include "qpainter.h"
 #include "qpixmap.h"
@@ -55,42 +55,42 @@ QPainterWrap::~QPainterWrap() {
 void QPainterWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QPainter"));
+  tpl->SetClassName(Nan::New("QPainter").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("begin"),
+  tpl->PrototypeTemplate()->Set(Nan::New("begin").ToLocalChecked(),
       FunctionTemplate::New(Begin)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("end"),
+  tpl->PrototypeTemplate()->Set(Nan::New("end").ToLocalChecked(),
       FunctionTemplate::New(End)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("isActive"),
+  tpl->PrototypeTemplate()->Set(Nan::New("isActive").ToLocalChecked(),
       FunctionTemplate::New(IsActive)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("save"),
+  tpl->PrototypeTemplate()->Set(Nan::New("save").ToLocalChecked(),
       FunctionTemplate::New(Save)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("restore"),
+  tpl->PrototypeTemplate()->Set(Nan::New("restore").ToLocalChecked(),
       FunctionTemplate::New(Restore)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setPen"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setPen").ToLocalChecked(),
       FunctionTemplate::New(SetPen)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setFont"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setFont").ToLocalChecked(),
       FunctionTemplate::New(SetFont)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setMatrix"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setMatrix").ToLocalChecked(),
       FunctionTemplate::New(SetMatrix)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("fillRect"),
+  tpl->PrototypeTemplate()->Set(Nan::New("fillRect").ToLocalChecked(),
       FunctionTemplate::New(FillRect)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("drawText"),
+  tpl->PrototypeTemplate()->Set(Nan::New("drawText").ToLocalChecked(),
       FunctionTemplate::New(DrawText)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("drawPixmap"),
+  tpl->PrototypeTemplate()->Set(Nan::New("drawPixmap").ToLocalChecked(),
       FunctionTemplate::New(DrawPixmap)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("drawImage"),
+  tpl->PrototypeTemplate()->Set(Nan::New("drawImage").ToLocalChecked(),
       FunctionTemplate::New(DrawImage)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("strokePath"),
+  tpl->PrototypeTemplate()->Set(Nan::New("strokePath").ToLocalChecked(),
       FunctionTemplate::New(StrokePath)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QPainter"), constructor);
+  target->Set(Nan::New("QPainter").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QPainterWrap::New(const Arguments& args) {
+Handle<Value> QPainterWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   if (args.Length()>0) {
@@ -104,7 +104,7 @@ Handle<Value> QPainterWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QPainterWrap::Begin(const Arguments& args) {
+Handle<Value> QPainterWrap::Begin(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -138,7 +138,7 @@ Handle<Value> QPainterWrap::Begin(const Arguments& args) {
   return scope.Close(Boolean::New( false ));
 }
 
-Handle<Value> QPainterWrap::End(const Arguments& args) {
+Handle<Value> QPainterWrap::End(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -147,7 +147,7 @@ Handle<Value> QPainterWrap::End(const Arguments& args) {
   return scope.Close(Boolean::New( q->end() ));
 }
 
-Handle<Value> QPainterWrap::IsActive(const Arguments& args) {
+Handle<Value> QPainterWrap::IsActive(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -156,7 +156,7 @@ Handle<Value> QPainterWrap::IsActive(const Arguments& args) {
   return scope.Close(Boolean::New( q->isActive() ));
 }
 
-Handle<Value> QPainterWrap::Save(const Arguments& args) {
+Handle<Value> QPainterWrap::Save(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -167,7 +167,7 @@ Handle<Value> QPainterWrap::Save(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QPainterWrap::Restore(const Arguments& args) {
+Handle<Value> QPainterWrap::Restore(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -180,7 +180,7 @@ Handle<Value> QPainterWrap::Restore(const Arguments& args) {
 
 // Supported implementations:
 //   setPen( QPen pen )
-Handle<Value> QPainterWrap::SetPen(const Arguments& args) {
+Handle<Value> QPainterWrap::SetPen(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -206,7 +206,7 @@ Handle<Value> QPainterWrap::SetPen(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QPainterWrap::SetFont(const Arguments& args) {
+Handle<Value> QPainterWrap::SetFont(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -233,7 +233,7 @@ Handle<Value> QPainterWrap::SetFont(const Arguments& args) {
 }
 
 // This seems to be undocumented in Qt, but it exists!
-Handle<Value> QPainterWrap::SetMatrix(const Arguments& args) {
+Handle<Value> QPainterWrap::SetMatrix(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -263,7 +263,7 @@ Handle<Value> QPainterWrap::SetMatrix(const Arguments& args) {
 //   fillRect(int x, int y, int w, int h, QBrush brush)
 //   fillRect(int x, int y, int w, int h, QColor color)
 //   fillRect(int x, int y, int w, int h, Qt::GlobalColor color)
-Handle<Value> QPainterWrap::FillRect(const Arguments& args) {
+Handle<Value> QPainterWrap::FillRect(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -317,7 +317,7 @@ Handle<Value> QPainterWrap::FillRect(const Arguments& args) {
 
 // Supported versions:
 //   drawText(int x, int y, "text")
-Handle<Value> QPainterWrap::DrawText(const Arguments& args) {
+Handle<Value> QPainterWrap::DrawText(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -335,7 +335,7 @@ Handle<Value> QPainterWrap::DrawText(const Arguments& args) {
 
 // Supported versions:
 //   drawPixmap(int x, int y, QPixmap pixmap)
-Handle<Value> QPainterWrap::DrawPixmap(const Arguments& args) {
+Handle<Value> QPainterWrap::DrawPixmap(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -369,7 +369,7 @@ Handle<Value> QPainterWrap::DrawPixmap(const Arguments& args) {
 
 // Supported versions:
 //   drawImage( int x, int y, QImage image )
-Handle<Value> QPainterWrap::DrawImage(const Arguments& args) {
+Handle<Value> QPainterWrap::DrawImage(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
@@ -403,7 +403,7 @@ Handle<Value> QPainterWrap::DrawImage(const Arguments& args) {
 
 // Supported versions:
 //   strokePath( QPainterPath path, QPen pen )
-Handle<Value> QPainterWrap::StrokePath(const Arguments& args) {
+Handle<Value> QPainterWrap::StrokePath(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());

@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "__template__.h"
 
 using namespace v8;
@@ -37,7 +37,7 @@ Persistent<Function> __Template__Wrap::constructor;
 
 // Supported implementations:
 //   __Template__ ( ??? )
-__Template__Wrap::__Template__Wrap(const Arguments& args) : q_(NULL) {
+__Template__Wrap::__Template__Wrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
   q_ = new __Template__;
 }
 
@@ -48,18 +48,18 @@ __Template__Wrap::~__Template__Wrap() {
 void __Template__Wrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("__Template__"));
+  tpl->SetClassName(Nan::New("__Template__").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("example"),
+  tpl->PrototypeTemplate()->Set(Nan::New("example").ToLocalChecked(),
       FunctionTemplate::New(Example)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("__Template__"), constructor);
+  target->Set(Nan::New("__Template__").ToLocalChecked(), constructor);
 }
 
-Handle<Value> __Template__Wrap::New(const Arguments& args) {
+Handle<Value> __Template__Wrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   __Template__Wrap* w = new __Template__Wrap(args);
@@ -78,7 +78,7 @@ Handle<Value> __Template__Wrap::NewInstance(__Template__ q) {
   return scope.Close(instance);
 }
 
-Handle<Value> __Template__Wrap::Example(const Arguments& args) {
+Handle<Value> __Template__Wrap::Example(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   __Template__Wrap* w = ObjectWrap::Unwrap<__Template__Wrap>(args.This());

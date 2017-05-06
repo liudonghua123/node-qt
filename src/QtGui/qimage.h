@@ -30,7 +30,6 @@
 #ifndef QIMAGEWRAP_H
 #define QIMAGEWRAP_H
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <QImage>
 
@@ -40,13 +39,13 @@ class QImageWrap : public node::ObjectWrap {
   QImage* GetWrapped() const { return q_; };
 
  private:
-  QImageWrap(const v8::Arguments& args);
+  QImageWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
   ~QImageWrap();
   static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> IsNull(const v8::Arguments& args);
+  static v8::Handle<v8::Value> IsNull(const v8::FunctionCallbackInfo<v8::Value>& args);
 
   // Wrapped object
   QImage* q_;

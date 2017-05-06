@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qmouseevent.h"
 
 using namespace v8;
@@ -47,21 +47,21 @@ QMouseEventWrap::~QMouseEventWrap() {
 void QMouseEventWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QMouseEvent"));
+  tpl->SetClassName(Nan::New("QMouseEvent").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("x"),
+  tpl->PrototypeTemplate()->Set(Nan::New("x").ToLocalChecked(),
       FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("y"),
+  tpl->PrototypeTemplate()->Set(Nan::New("y").ToLocalChecked(),
       FunctionTemplate::New(Y)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("button"),
+  tpl->PrototypeTemplate()->Set(Nan::New("button").ToLocalChecked(),
       FunctionTemplate::New(Button)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QMouseEvent"), constructor);
+  target->Set(Nan::New("QMouseEvent").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QMouseEventWrap::New(const Arguments& args) {
+Handle<Value> QMouseEventWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMouseEventWrap* w = new QMouseEventWrap();
@@ -80,7 +80,7 @@ Handle<Value> QMouseEventWrap::NewInstance(QMouseEvent q) {
   return scope.Close(instance);
 }
 
-Handle<Value> QMouseEventWrap::X(const Arguments& args) {
+Handle<Value> QMouseEventWrap::X(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());
@@ -89,7 +89,7 @@ Handle<Value> QMouseEventWrap::X(const Arguments& args) {
   return scope.Close(Number::New(q->x()));
 }
 
-Handle<Value> QMouseEventWrap::Y(const Arguments& args) {
+Handle<Value> QMouseEventWrap::Y(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());
@@ -98,7 +98,7 @@ Handle<Value> QMouseEventWrap::Y(const Arguments& args) {
   return scope.Close(Number::New(q->y()));
 }
 
-Handle<Value> QMouseEventWrap::Button(const Arguments& args) {
+Handle<Value> QMouseEventWrap::Button(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());

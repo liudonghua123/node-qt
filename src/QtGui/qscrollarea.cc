@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <QFrame>
 #include "../qt_v8.h"
@@ -43,7 +42,7 @@ Persistent<Function> QScrollAreaWrap::constructor;
 // Supported implementations:
 //   QScrollArea ( )
 //   QScrollArea ( QWidget widget )
-QScrollAreaWrap::QScrollAreaWrap(const v8::Arguments& args) {
+QScrollAreaWrap::QScrollAreaWrap(const v8::FunctionCallbackInfo<v8::Value>& args) {
   if (args.Length() == 0) {
     // QScrollArea ( )
 
@@ -75,58 +74,58 @@ QScrollAreaWrap::~QScrollAreaWrap() {
 void QScrollAreaWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QScrollArea"));
+  tpl->SetClassName(Nan::New("QScrollArea").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Wrapped methods
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("resize"),
+  tpl->PrototypeTemplate()->Set(Nan::New("resize").ToLocalChecked(),
       FunctionTemplate::New(Resize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("show"),
+  tpl->PrototypeTemplate()->Set(Nan::New("show").ToLocalChecked(),
       FunctionTemplate::New(Show)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("size"),
+  tpl->PrototypeTemplate()->Set(Nan::New("size").ToLocalChecked(),
       FunctionTemplate::New(Size)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("width"),
+  tpl->PrototypeTemplate()->Set(Nan::New("width").ToLocalChecked(),
       FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("height"),
+  tpl->PrototypeTemplate()->Set(Nan::New("height").ToLocalChecked(),
       FunctionTemplate::New(Height)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("parent"),
+  tpl->PrototypeTemplate()->Set(Nan::New("parent").ToLocalChecked(),
       FunctionTemplate::New(Parent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("objectName"),
+  tpl->PrototypeTemplate()->Set(Nan::New("objectName").ToLocalChecked(),
       FunctionTemplate::New(ObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setObjectName"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setObjectName").ToLocalChecked(),
       FunctionTemplate::New(SetObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("update"),
+  tpl->PrototypeTemplate()->Set(Nan::New("update").ToLocalChecked(),
       FunctionTemplate::New(Update)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setFocusPolicy"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setFocusPolicy").ToLocalChecked(),
       FunctionTemplate::New(SetFocusPolicy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("move"),
+  tpl->PrototypeTemplate()->Set(Nan::New("move").ToLocalChecked(),
       FunctionTemplate::New(Move)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("x"),
+  tpl->PrototypeTemplate()->Set(Nan::New("x").ToLocalChecked(),
       FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("y"),
+  tpl->PrototypeTemplate()->Set(Nan::New("y").ToLocalChecked(),
       FunctionTemplate::New(Y)->GetFunction());
 
   // QScrollArea-specific
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setWidget"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setWidget").ToLocalChecked(),
       FunctionTemplate::New(SetWidget)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("widget"),
+  tpl->PrototypeTemplate()->Set(Nan::New("widget").ToLocalChecked(),
       FunctionTemplate::New(Widget)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setFrameShape"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setFrameShape").ToLocalChecked(),
       FunctionTemplate::New(SetFrameShape)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setVerticalScrollBarPolicy"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setVerticalScrollBarPolicy").ToLocalChecked(),
       FunctionTemplate::New(SetVerticalScrollBarPolicy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setHorizontalScrollBarPolicy"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setHorizontalScrollBarPolicy").ToLocalChecked(),
       FunctionTemplate::New(SetHorizontalScrollBarPolicy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("verticalScrollBar"),
+  tpl->PrototypeTemplate()->Set(Nan::New("verticalScrollBar").ToLocalChecked(),
       FunctionTemplate::New(VerticalScrollBar)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("horizontalScrollBar"),
+  tpl->PrototypeTemplate()->Set(Nan::New("horizontalScrollBar").ToLocalChecked(),
       FunctionTemplate::New(HorizontalScrollBar)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QScrollArea"), constructor);
+  target->Set(Nan::New("QScrollArea").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QScrollAreaWrap::New(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = new QScrollAreaWrap(args);
@@ -135,7 +134,7 @@ Handle<Value> QScrollAreaWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QScrollAreaWrap::Resize(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Resize(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -146,7 +145,7 @@ Handle<Value> QScrollAreaWrap::Resize(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::Show(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Show(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -157,7 +156,7 @@ Handle<Value> QScrollAreaWrap::Show(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::Close(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Close(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -168,7 +167,7 @@ Handle<Value> QScrollAreaWrap::Close(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::Size(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Size(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -177,7 +176,7 @@ Handle<Value> QScrollAreaWrap::Size(const Arguments& args) {
   return scope.Close( QSizeWrap::NewInstance(q->size()) );
 }
 
-Handle<Value> QScrollAreaWrap::Width(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Width(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -186,7 +185,7 @@ Handle<Value> QScrollAreaWrap::Width(const Arguments& args) {
   return scope.Close( Integer::New(q->width()) );
 }
 
-Handle<Value> QScrollAreaWrap::Height(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Height(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -195,7 +194,7 @@ Handle<Value> QScrollAreaWrap::Height(const Arguments& args) {
   return scope.Close( Integer::New(q->height()) );
 }
 
-Handle<Value> QScrollAreaWrap::ObjectName(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::ObjectName(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -204,7 +203,7 @@ Handle<Value> QScrollAreaWrap::ObjectName(const Arguments& args) {
   return scope.Close(qt_v8::FromQString(q->objectName()));
 }
 
-Handle<Value> QScrollAreaWrap::SetObjectName(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::SetObjectName(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -221,7 +220,7 @@ Handle<Value> QScrollAreaWrap::SetObjectName(const Arguments& args) {
 // Qt: Parent() returns QObject
 // Intended mostly for sanity checks
 //
-Handle<Value> QScrollAreaWrap::Parent(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Parent(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -230,7 +229,7 @@ Handle<Value> QScrollAreaWrap::Parent(const Arguments& args) {
   return scope.Close(qt_v8::FromQString(q->parent()->objectName()));
 }
 
-Handle<Value> QScrollAreaWrap::Update(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Update(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -241,7 +240,7 @@ Handle<Value> QScrollAreaWrap::Update(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::SetWidget(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::SetWidget(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -269,7 +268,7 @@ Handle<Value> QScrollAreaWrap::SetWidget(const Arguments& args) {
 
 // QUIRK:
 // Does not return QWidget. Returns 1 if child widget exists, 0 otherwise
-Handle<Value> QScrollAreaWrap::Widget(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Widget(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -280,7 +279,7 @@ Handle<Value> QScrollAreaWrap::Widget(const Arguments& args) {
   return scope.Close(Integer::New(retvalue));
 }
 
-Handle<Value> QScrollAreaWrap::SetFrameShape(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::SetFrameShape(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -291,7 +290,7 @@ Handle<Value> QScrollAreaWrap::SetFrameShape(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::SetFocusPolicy(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::SetFocusPolicy(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -304,7 +303,7 @@ Handle<Value> QScrollAreaWrap::SetFocusPolicy(const Arguments& args) {
 
 // Supported implementations:
 //    move (int x, int y)
-Handle<Value> QScrollAreaWrap::Move(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Move(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -315,7 +314,7 @@ Handle<Value> QScrollAreaWrap::Move(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::X(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::X(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -324,7 +323,7 @@ Handle<Value> QScrollAreaWrap::X(const Arguments& args) {
   return scope.Close(Integer::New(q->x()));
 }
 
-Handle<Value> QScrollAreaWrap::Y(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::Y(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -334,7 +333,7 @@ Handle<Value> QScrollAreaWrap::Y(const Arguments& args) {
 }
 
 Handle<Value> 
-  QScrollAreaWrap::SetVerticalScrollBarPolicy(const Arguments& args) {
+  QScrollAreaWrap::SetVerticalScrollBarPolicy(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -346,7 +345,7 @@ Handle<Value>
 }
 
 Handle<Value> 
-  QScrollAreaWrap::SetHorizontalScrollBarPolicy(const Arguments& args) {
+  QScrollAreaWrap::SetHorizontalScrollBarPolicy(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -358,7 +357,7 @@ Handle<Value>
   return scope.Close(Undefined());
 }
 
-Handle<Value> QScrollAreaWrap::HorizontalScrollBar(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::HorizontalScrollBar(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());
@@ -368,7 +367,7 @@ Handle<Value> QScrollAreaWrap::HorizontalScrollBar(const Arguments& args) {
     QScrollBarWrap::NewInstance(q->horizontalScrollBar()) );
 }
 
-Handle<Value> QScrollAreaWrap::VerticalScrollBar(const Arguments& args) {
+Handle<Value> QScrollAreaWrap::VerticalScrollBar(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(args.This());

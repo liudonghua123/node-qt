@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "../qt_v8.h"
 #include "../QtGui/qwidget.h"
 #include "qtesteventlist.h"
@@ -48,23 +48,23 @@ QTestEventListWrap::~QTestEventListWrap() {
 void QTestEventListWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QTestEventList"));
+  tpl->SetClassName(Nan::New("QTestEventList").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("addMouseClick"),
+  tpl->PrototypeTemplate()->Set(Nan::New("addMouseClick").ToLocalChecked(),
       FunctionTemplate::New(AddMouseClick)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("addKeyPress"),
+  tpl->PrototypeTemplate()->Set(Nan::New("addKeyPress").ToLocalChecked(),
       FunctionTemplate::New(AddKeyPress)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("simulate"),
+  tpl->PrototypeTemplate()->Set(Nan::New("simulate").ToLocalChecked(),
       FunctionTemplate::New(Simulate)->GetFunction());
 
   constructor = Persistent<Function>::New(
       tpl->GetFunction());
-  target->Set(String::NewSymbol("QTestEventList"), constructor);
+  target->Set(Nan::New("QTestEventList").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QTestEventListWrap::New(const Arguments& args) {
+Handle<Value> QTestEventListWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QTestEventListWrap* w = new QTestEventListWrap();
@@ -73,7 +73,7 @@ Handle<Value> QTestEventListWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QTestEventListWrap::AddMouseClick(const Arguments& args) {
+Handle<Value> QTestEventListWrap::AddMouseClick(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());
@@ -84,7 +84,7 @@ Handle<Value> QTestEventListWrap::AddMouseClick(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QTestEventListWrap::AddKeyPress(const Arguments& args) {
+Handle<Value> QTestEventListWrap::AddKeyPress(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());
@@ -98,7 +98,7 @@ Handle<Value> QTestEventListWrap::AddKeyPress(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QTestEventListWrap::Simulate(const Arguments& args) {
+Handle<Value> QTestEventListWrap::Simulate(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());

@@ -30,7 +30,6 @@
 #ifndef QBRUSHWRAP_H
 #define QBRUSHWRAP_H
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include <QBrush>
 
@@ -40,10 +39,10 @@ class QBrushWrap : public node::ObjectWrap {
   QBrush* GetWrapped() const { return q_; };
 
  private:
-  QBrushWrap(const v8::Arguments& args);
+  QBrushWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
   ~QBrushWrap();
   static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
 
   // Wrapped methods
 

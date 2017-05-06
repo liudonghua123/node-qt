@@ -27,13 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
-#include <node.h>
 #include "qsize.h"
 
 using namespace v8;
 
-Persistent<Function> QSizeWrap::constructor;
+Nan::Persistent<Function> QSizeWrap::constructor;
 
 QSizeWrap::QSizeWrap() : q_(NULL) {
   // Standalone constructor not implemented
@@ -44,55 +42,47 @@ QSizeWrap::~QSizeWrap() {
   delete q_;
 }
 
-void QSizeWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QSizeWrap::Initialize) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QSize"));
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+  tpl->SetClassName(Nan::New("QSize").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("width"),
-      FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("height"),
-      FunctionTemplate::New(Height)->GetFunction());
-
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QSize"), constructor);
+  Nan::SetPrototypeMethod(tpl, "width", Width);
+  Nan::SetPrototypeMethod(tpl, "height", Height);
+  
+  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
+  Nan::Set(target, Nan::New("QSize").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
-Handle<Value> QSizeWrap::New(const Arguments& args) {
-  HandleScope scope;
+NAN_METHOD(QSizeWrap::New) {
+  Nan::HandleScope scope;
 
   QSizeWrap* w = new QSizeWrap();
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
 Handle<Value> QSizeWrap::NewInstance(QSize q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
-  QSizeWrap* w = node::ObjectWrap::Unwrap<QSizeWrap>(instance);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
+  QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QSizeWrap::Width(const Arguments& args) {
-  HandleScope scope;
-
-  QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(args.This());
+NAN_METHOD(QSizeWrap::Width) {
+  QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(info.This());
   QSize* q = w->GetWrapped();
-
-  return scope.Close(Number::New(q->width()));
+  
+  info.GetReturnValue().Set(Nan::New<Number>(q->width()));
 }
 
-Handle<Value> QSizeWrap::Height(const Arguments& args) {
-  HandleScope scope;
-
-  QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(args.This());
+NAN_METHOD(QSizeWrap::Height) {
+  QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(info.This());
   QSize* q = w->GetWrapped();
-
-  return scope.Close(Number::New(q->height()));
+  
+  info.GetReturnValue().Set(Nan::New<Number>(q->height()));
 }

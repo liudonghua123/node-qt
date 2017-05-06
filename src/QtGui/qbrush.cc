@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qbrush.h"
 
 using namespace v8;
@@ -37,7 +37,7 @@ Persistent<Function> QBrushWrap::constructor;
 
 // Supported constructors
 // QBrush(Qt::GlobalColor)  
-QBrushWrap::QBrushWrap(const Arguments& args) {
+QBrushWrap::QBrushWrap(const FunctionCallbackInfo<Value>& args) {
   if (args.Length() > 0) {
     q_ = new QBrush((Qt::GlobalColor)args[0]->IntegerValue());
   } else {
@@ -53,16 +53,16 @@ QBrushWrap::~QBrushWrap() {
 void QBrushWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QBrush"));
+  tpl->SetClassName(Nan::New("QBrush").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QBrush"), constructor);
+  target->Set(Nan::New("QBrush").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QBrushWrap::New(const Arguments& args) {
+Handle<Value> QBrushWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QBrushWrap* w = new QBrushWrap(args);

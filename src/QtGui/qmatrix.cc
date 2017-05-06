@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qmatrix.h"
 #include "../qt_v8.h"
 
@@ -40,7 +40,7 @@ Persistent<Function> QMatrixWrap::constructor;
 //   QMatrix ( )
 //   QMatrix ( qreal m11, qreal m12, qreal m21, qreal m22, qreal dx, qreal dy )
 //   QMatrix ( QMatrix matrix )
-QMatrixWrap::QMatrixWrap(const Arguments& args) : q_(NULL) {
+QMatrixWrap::QMatrixWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
   if (args.Length() == 0) {
     // QMatrix ( )
 
@@ -77,32 +77,32 @@ QMatrixWrap::~QMatrixWrap() {
 void QMatrixWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QMatrix"));
+  tpl->SetClassName(Nan::New("QMatrix").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("m11"),
+  tpl->PrototypeTemplate()->Set(Nan::New("m11").ToLocalChecked(),
       FunctionTemplate::New(M11)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("m12"),
+  tpl->PrototypeTemplate()->Set(Nan::New("m12").ToLocalChecked(),
       FunctionTemplate::New(M12)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("m21"),
+  tpl->PrototypeTemplate()->Set(Nan::New("m21").ToLocalChecked(),
       FunctionTemplate::New(M21)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("m22"),
+  tpl->PrototypeTemplate()->Set(Nan::New("m22").ToLocalChecked(),
       FunctionTemplate::New(M22)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("dx"),
+  tpl->PrototypeTemplate()->Set(Nan::New("dx").ToLocalChecked(),
       FunctionTemplate::New(Dx)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("dy"),
+  tpl->PrototypeTemplate()->Set(Nan::New("dy").ToLocalChecked(),
       FunctionTemplate::New(Dy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("translate"),
+  tpl->PrototypeTemplate()->Set(Nan::New("translate").ToLocalChecked(),
       FunctionTemplate::New(Translate)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("scale"),
+  tpl->PrototypeTemplate()->Set(Nan::New("scale").ToLocalChecked(),
       FunctionTemplate::New(Scale)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QMatrix"), constructor);
+  target->Set(Nan::New("QMatrix").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QMatrixWrap::New(const Arguments& args) {
+Handle<Value> QMatrixWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = new QMatrixWrap(args);
@@ -121,7 +121,7 @@ Handle<Value> QMatrixWrap::NewInstance(QMatrix q) {
   return scope.Close(instance);
 }
 
-Handle<Value> QMatrixWrap::M11(const Arguments& args) {
+Handle<Value> QMatrixWrap::M11(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -130,7 +130,7 @@ Handle<Value> QMatrixWrap::M11(const Arguments& args) {
   return scope.Close(Number::New(q->m11()));
 }
 
-Handle<Value> QMatrixWrap::M12(const Arguments& args) {
+Handle<Value> QMatrixWrap::M12(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -139,7 +139,7 @@ Handle<Value> QMatrixWrap::M12(const Arguments& args) {
   return scope.Close(Number::New(q->m12()));
 }
 
-Handle<Value> QMatrixWrap::M21(const Arguments& args) {
+Handle<Value> QMatrixWrap::M21(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -148,7 +148,7 @@ Handle<Value> QMatrixWrap::M21(const Arguments& args) {
   return scope.Close(Number::New(q->m21()));
 }
 
-Handle<Value> QMatrixWrap::M22(const Arguments& args) {
+Handle<Value> QMatrixWrap::M22(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -157,7 +157,7 @@ Handle<Value> QMatrixWrap::M22(const Arguments& args) {
   return scope.Close(Number::New(q->m22()));
 }
 
-Handle<Value> QMatrixWrap::Dx(const Arguments& args) {
+Handle<Value> QMatrixWrap::Dx(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -166,7 +166,7 @@ Handle<Value> QMatrixWrap::Dx(const Arguments& args) {
   return scope.Close(Number::New(q->dx()));
 }
 
-Handle<Value> QMatrixWrap::Dy(const Arguments& args) {
+Handle<Value> QMatrixWrap::Dy(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -175,7 +175,7 @@ Handle<Value> QMatrixWrap::Dy(const Arguments& args) {
   return scope.Close(Number::New(q->dy()));
 }
 
-Handle<Value> QMatrixWrap::Translate(const Arguments& args) {
+Handle<Value> QMatrixWrap::Translate(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
@@ -186,7 +186,7 @@ Handle<Value> QMatrixWrap::Translate(const Arguments& args) {
   return scope.Close(args.This());
 }
 
-Handle<Value> QMatrixWrap::Scale(const Arguments& args) {
+Handle<Value> QMatrixWrap::Scale(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());

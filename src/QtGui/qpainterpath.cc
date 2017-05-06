@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "../QtCore/qpointf.h"
 #include "qpainterpath.h"
 #include "../qt_v8.h"
@@ -39,7 +39,7 @@ Persistent<Function> QPainterPathWrap::constructor;
 
 // Supported implementations:
 //   QPainterPath ( ??? )
-QPainterPathWrap::QPainterPathWrap(const Arguments& args) {
+QPainterPathWrap::QPainterPathWrap(const FunctionCallbackInfo<Value>& args) {
   q_ = new QPainterPath();
 }
 
@@ -50,24 +50,24 @@ QPainterPathWrap::~QPainterPathWrap() {
 void QPainterPathWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QPainterPath"));
+  tpl->SetClassName(Nan::New("QPainterPath").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("moveTo"),
+  tpl->PrototypeTemplate()->Set(Nan::New("moveTo").ToLocalChecked(),
       FunctionTemplate::New(MoveTo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("lineTo"),
+  tpl->PrototypeTemplate()->Set(Nan::New("lineTo").ToLocalChecked(),
       FunctionTemplate::New(LineTo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("currentPosition"),
+  tpl->PrototypeTemplate()->Set(Nan::New("currentPosition").ToLocalChecked(),
       FunctionTemplate::New(CurrentPosition)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("closeSubpath"),
+  tpl->PrototypeTemplate()->Set(Nan::New("closeSubpath").ToLocalChecked(),
       FunctionTemplate::New(CloseSubpath)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QPainterPath"), constructor);
+  target->Set(Nan::New("QPainterPath").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QPainterPathWrap::New(const Arguments& args) {
+Handle<Value> QPainterPathWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterPathWrap* w = new QPainterPathWrap(args);
@@ -78,7 +78,7 @@ Handle<Value> QPainterPathWrap::New(const Arguments& args) {
 
 // Supported versions:
 //   moveTo( QPointF() )
-Handle<Value> QPainterPathWrap::MoveTo(const Arguments& args) {
+Handle<Value> QPainterPathWrap::MoveTo(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
@@ -104,7 +104,7 @@ Handle<Value> QPainterPathWrap::MoveTo(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QPainterPathWrap::CurrentPosition(const Arguments& args) {
+Handle<Value> QPainterPathWrap::CurrentPosition(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
@@ -115,7 +115,7 @@ Handle<Value> QPainterPathWrap::CurrentPosition(const Arguments& args) {
 
 // Supported versions:
 //   lineTo( QPointF() )
-Handle<Value> QPainterPathWrap::LineTo(const Arguments& args) {
+Handle<Value> QPainterPathWrap::LineTo(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
@@ -141,7 +141,7 @@ Handle<Value> QPainterPathWrap::LineTo(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QPainterPathWrap::CloseSubpath(const Arguments& args) {
+Handle<Value> QPainterPathWrap::CloseSubpath(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());

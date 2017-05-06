@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qcolor.h"
 #include "../qt_v8.h"
 
@@ -40,7 +40,7 @@ Persistent<Function> QColorWrap::constructor;
 //   QColor ( int r, int g, int b, int a = 255 )
 //   QColor ( QString color )
 //   QColor ( QColor )
-QColorWrap::QColorWrap(const Arguments& args) {
+QColorWrap::QColorWrap(const FunctionCallbackInfo<Value>& args) {
   if (args.Length() >= 3) {
     // QColor ( int r, int g, int b, int a = 255 )
     q_ = new QColor(
@@ -77,26 +77,26 @@ QColorWrap::~QColorWrap() {
 void QColorWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QColor"));
+  tpl->SetClassName(Nan::New("QColor").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("red"),
+  tpl->PrototypeTemplate()->Set(Nan::New("red").ToLocalChecked(),
       FunctionTemplate::New(Red)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("green"),
+  tpl->PrototypeTemplate()->Set(Nan::New("green").ToLocalChecked(),
       FunctionTemplate::New(Green)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("blue"),
+  tpl->PrototypeTemplate()->Set(Nan::New("blue").ToLocalChecked(),
       FunctionTemplate::New(Blue)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("alpha"),
+  tpl->PrototypeTemplate()->Set(Nan::New("alpha").ToLocalChecked(),
       FunctionTemplate::New(Alpha)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("name"),
+  tpl->PrototypeTemplate()->Set(Nan::New("name").ToLocalChecked(),
       FunctionTemplate::New(Name)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QColor"), constructor);
+  target->Set(Nan::New("QColor").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QColorWrap::New(const Arguments& args) {
+Handle<Value> QColorWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = new QColorWrap(args);
@@ -105,7 +105,7 @@ Handle<Value> QColorWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QColorWrap::Red(const Arguments& args) {
+Handle<Value> QColorWrap::Red(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
@@ -114,7 +114,7 @@ Handle<Value> QColorWrap::Red(const Arguments& args) {
   return scope.Close(Number::New(q->red()));
 }
 
-Handle<Value> QColorWrap::Green(const Arguments& args) {
+Handle<Value> QColorWrap::Green(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
@@ -123,7 +123,7 @@ Handle<Value> QColorWrap::Green(const Arguments& args) {
   return scope.Close(Number::New(q->green()));
 }
 
-Handle<Value> QColorWrap::Blue(const Arguments& args) {
+Handle<Value> QColorWrap::Blue(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
@@ -132,7 +132,7 @@ Handle<Value> QColorWrap::Blue(const Arguments& args) {
   return scope.Close(Number::New(q->blue()));
 }
 
-Handle<Value> QColorWrap::Alpha(const Arguments& args) {
+Handle<Value> QColorWrap::Alpha(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
@@ -141,7 +141,7 @@ Handle<Value> QColorWrap::Alpha(const Arguments& args) {
   return scope.Close(Number::New(q->alpha()));
 }
 
-Handle<Value> QColorWrap::Name(const Arguments& args) {
+Handle<Value> QColorWrap::Name(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());

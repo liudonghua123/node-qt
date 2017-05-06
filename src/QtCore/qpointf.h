@@ -27,36 +27,34 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QPOINTFWRAP_H
-#define QPOINTFWRAP_H
+#pragma once
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QPointF>
 
 class QPointFWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static NAN_MODULE_INIT(Initialize);
+  static v8::Handle<v8::Value> NewInstance(QPointF q);
   QPointF* GetWrapped() const { return q_; };
   void SetWrapped(QPointF q) { 
     if (q_) delete q_; 
     q_ = new QPointF(q); 
   };
-  static v8::Handle<v8::Value> NewInstance(QPointF q);
 
  private:
-  QPointFWrap(const v8::Arguments& args);
+  QPointFWrap(const Nan::FunctionCallbackInfo<v8::Value>& args);
   ~QPointFWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::Arguments& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> IsNull(const v8::Arguments& args);
-  static v8::Handle<v8::Value> X(const v8::Arguments& args);
-  static v8::Handle<v8::Value> Y(const v8::Arguments& args);
+  static NAN_METHOD(IsNull);
+  static NAN_METHOD(X);
+  static NAN_METHOD(Y);
 
   // Wrapped object
   QPointF* q_;
 };
-
-#endif

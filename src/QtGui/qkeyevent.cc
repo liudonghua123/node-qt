@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qkeyevent.h"
 #include "../qt_v8.h"
 
@@ -48,19 +48,19 @@ QKeyEventWrap::~QKeyEventWrap() {
 void QKeyEventWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QKeyEvent"));
+  tpl->SetClassName(Nan::New("QKeyEvent").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("key"),
+  tpl->PrototypeTemplate()->Set(Nan::New("key").ToLocalChecked(),
       FunctionTemplate::New(Key)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("text"),
+  tpl->PrototypeTemplate()->Set(Nan::New("text").ToLocalChecked(),
       FunctionTemplate::New(Text)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QKeyEvent"), constructor);
+  target->Set(Nan::New("QKeyEvent").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QKeyEventWrap::New(const Arguments& args) {
+Handle<Value> QKeyEventWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QKeyEventWrap* w = new QKeyEventWrap;
@@ -79,7 +79,7 @@ Handle<Value> QKeyEventWrap::NewInstance(QKeyEvent q) {
   return scope.Close(instance);
 }
 
-Handle<Value> QKeyEventWrap::Key(const Arguments& args) {
+Handle<Value> QKeyEventWrap::Key(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(args.This());
@@ -88,7 +88,7 @@ Handle<Value> QKeyEventWrap::Key(const Arguments& args) {
   return scope.Close(Number::New(q->key()));
 }
 
-Handle<Value> QKeyEventWrap::Text(const Arguments& args) {
+Handle<Value> QKeyEventWrap::Text(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(args.This());

@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include "../qt_v8.h"
 #include "qpixmap.h"
@@ -47,24 +46,24 @@ QPixmapWrap::~QPixmapWrap() {
 void QPixmapWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QPixmap"));
+  tpl->SetClassName(Nan::New("QPixmap").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("width"),
+  tpl->PrototypeTemplate()->Set(Nan::New("width").ToLocalChecked(),
       FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("height"),
+  tpl->PrototypeTemplate()->Set(Nan::New("height").ToLocalChecked(),
       FunctionTemplate::New(Height)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("save"),
+  tpl->PrototypeTemplate()->Set(Nan::New("save").ToLocalChecked(),
       FunctionTemplate::New(Save)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("fill"),
+  tpl->PrototypeTemplate()->Set(Nan::New("fill").ToLocalChecked(),
       FunctionTemplate::New(Fill)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QPixmap"), constructor);
+  target->Set(Nan::New("QPixmap").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QPixmapWrap::New(const Arguments& args) {
+Handle<Value> QPixmapWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPixmapWrap* w = new QPixmapWrap(args[0]->IntegerValue(), 
@@ -84,7 +83,7 @@ Handle<Value> QPixmapWrap::NewInstance(QPixmap q) {
   return scope.Close(instance);
 }
 
-Handle<Value> QPixmapWrap::Width(const Arguments& args) {
+Handle<Value> QPixmapWrap::Width(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
@@ -93,7 +92,7 @@ Handle<Value> QPixmapWrap::Width(const Arguments& args) {
   return scope.Close(Number::New(q->width()));
 }
 
-Handle<Value> QPixmapWrap::Height(const Arguments& args) {
+Handle<Value> QPixmapWrap::Height(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
@@ -102,7 +101,7 @@ Handle<Value> QPixmapWrap::Height(const Arguments& args) {
   return scope.Close(Number::New(q->height()));
 }
 
-Handle<Value> QPixmapWrap::Save(const Arguments& args) {
+Handle<Value> QPixmapWrap::Save(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
@@ -116,7 +115,7 @@ Handle<Value> QPixmapWrap::Save(const Arguments& args) {
 // Supports:
 //    fill()
 //    fill(QColor color)
-Handle<Value> QPixmapWrap::Fill(const Arguments& args) {
+Handle<Value> QPixmapWrap::Fill(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());

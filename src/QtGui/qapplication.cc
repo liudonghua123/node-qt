@@ -27,8 +27,8 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
+#include <nan.h>
 #include "qapplication.h"
 
 using namespace v8;
@@ -49,21 +49,21 @@ QApplicationWrap::~QApplicationWrap() {
 void QApplicationWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QApplication"));
+  tpl->SetClassName(Nan::New("QApplication").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("processEvents"),
+  tpl->PrototypeTemplate()->Set(Nan::New("processEvents").ToLocalChecked(),
       FunctionTemplate::New(ProcessEvents)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("exec"),
+  tpl->PrototypeTemplate()->Set(Nan::New("exec").ToLocalChecked(),
       FunctionTemplate::New(Exec)->GetFunction());
 
   constructor = Persistent<Function>::New(
       tpl->GetFunction());
-  target->Set(String::NewSymbol("QApplication"), constructor);
+  target->Set(Nan::New("QApplication").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QApplicationWrap::New(const Arguments& args) {
+Handle<Value> QApplicationWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QApplicationWrap* w = new QApplicationWrap();
@@ -72,7 +72,7 @@ Handle<Value> QApplicationWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QApplicationWrap::ProcessEvents(const Arguments& args) {
+Handle<Value> QApplicationWrap::ProcessEvents(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(args.This());
@@ -83,7 +83,7 @@ Handle<Value> QApplicationWrap::ProcessEvents(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QApplicationWrap::Exec(const Arguments& args) {
+Handle<Value> QApplicationWrap::Exec(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(args.This());

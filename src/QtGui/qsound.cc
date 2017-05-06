@@ -27,7 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#define BUILDING_NODE_EXTENSION
 #include <node.h>
 #include "../qt_v8.h"
 #include "qsound.h"
@@ -38,7 +37,7 @@ Persistent<Function> QSoundWrap::constructor;
 
 // Supported implementations:
 //   QSound ( QString filename )
-QSoundWrap::QSoundWrap(const Arguments& args) : q_(NULL) {
+QSoundWrap::QSoundWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
   q_ = new QSound(qt_v8::ToQString(args[0]->ToString()));
 }
 
@@ -49,22 +48,22 @@ QSoundWrap::~QSoundWrap() {
 void QSoundWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
-  tpl->SetClassName(String::NewSymbol("QSound"));
+  tpl->SetClassName(Nan::New("QSound").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("play"),
+  tpl->PrototypeTemplate()->Set(Nan::New("play").ToLocalChecked(),
       FunctionTemplate::New(Play)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("fileName"),
+  tpl->PrototypeTemplate()->Set(Nan::New("fileName").ToLocalChecked(),
       FunctionTemplate::New(FileName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(String::NewSymbol("setLoops"),
+  tpl->PrototypeTemplate()->Set(Nan::New("setLoops").ToLocalChecked(),
       FunctionTemplate::New(SetLoops)->GetFunction());
 
   constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(String::NewSymbol("QSound"), constructor);
+  target->Set(Nan::New("QSound").ToLocalChecked(), constructor);
 }
 
-Handle<Value> QSoundWrap::New(const Arguments& args) {
+Handle<Value> QSoundWrap::New(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QSoundWrap* w = new QSoundWrap(args);
@@ -73,7 +72,7 @@ Handle<Value> QSoundWrap::New(const Arguments& args) {
   return args.This();
 }
 
-Handle<Value> QSoundWrap::Play(const Arguments& args) {
+Handle<Value> QSoundWrap::Play(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QSoundWrap* w = ObjectWrap::Unwrap<QSoundWrap>(args.This());
@@ -84,7 +83,7 @@ Handle<Value> QSoundWrap::Play(const Arguments& args) {
   return scope.Close(Undefined());
 }
 
-Handle<Value> QSoundWrap::FileName(const Arguments& args) {
+Handle<Value> QSoundWrap::FileName(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QSoundWrap* w = ObjectWrap::Unwrap<QSoundWrap>(args.This());
@@ -93,7 +92,7 @@ Handle<Value> QSoundWrap::FileName(const Arguments& args) {
   return scope.Close(qt_v8::FromQString(q->fileName()));
 }
 
-Handle<Value> QSoundWrap::SetLoops(const Arguments& args) {
+Handle<Value> QSoundWrap::SetLoops(const FunctionCallbackInfo<Value>& args) {
   HandleScope scope;
 
   QSoundWrap* w = ObjectWrap::Unwrap<QSoundWrap>(args.This());
