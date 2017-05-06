@@ -35,7 +35,7 @@
 
 using namespace v8;
 
-Persistent<Function> QTestEventListWrap::constructor;
+Nan::Persistent<Function> QTestEventListWrap::constructor;
 
 QTestEventListWrap::QTestEventListWrap() {
   q_ = new QTestEventList();
@@ -47,68 +47,57 @@ QTestEventListWrap::~QTestEventListWrap() {
 
 void QTestEventListWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QTestEventList").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("addMouseClick").ToLocalChecked(),
-      FunctionTemplate::New(AddMouseClick)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("addKeyPress").ToLocalChecked(),
-      FunctionTemplate::New(AddKeyPress)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("simulate").ToLocalChecked(),
-      FunctionTemplate::New(Simulate)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "addMouseClick", AddMouseClick);
+  Nan::SetPrototypeMethod(tpl, "addKeyPress", AddKeyPress);
+  Nan::SetPrototypeMethod(tpl, "simulate", Simulate);
 
-  constructor = Persistent<Function>::New(
-      tpl->GetFunction());
-  target->Set(Nan::New("QTestEventList").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QTestEventList").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QTestEventListWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
+NAN_METHOD(QTestEventListWrap::New) {
   QTestEventListWrap* w = new QTestEventListWrap();
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
-Handle<Value> QTestEventListWrap::AddMouseClick(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());
+NAN_METHOD(QTestEventListWrap::AddMouseClick) {
+  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(info.This());
   QTestEventList* q = w->GetWrapped();
 
-  q->addMouseClick((Qt::MouseButton)args[0]->IntegerValue());
+  q->addMouseClick((Qt::MouseButton)info[0]->IntegerValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QTestEventListWrap::AddKeyPress(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());
+NAN_METHOD(QTestEventListWrap::AddKeyPress) {
+  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(info.This());
   QTestEventList* q = w->GetWrapped();
 
-  if (args[0]->IsString())
-    q->addKeyPress( qt_v8::ToQString(args[0]->ToString())[0].toAscii() );
-  else
-    q->addKeyPress( (Qt::Key)args[0]->IntegerValue() );
+  if (info[0]->IsString()) {
+    q->addKeyPress((*v8::String::Value(info[0]->ToString()))[0]);
+  }
+  else {
+    q->addKeyPress((Qt::Key)info[0]->IntegerValue());
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QTestEventListWrap::Simulate(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(args.This());
+NAN_METHOD(QTestEventListWrap::Simulate) {
+  QTestEventListWrap* w = ObjectWrap::Unwrap<QTestEventListWrap>(info.This());
   QTestEventList* q = w->GetWrapped();
 
   QWidgetWrap* widget_wrap = node::ObjectWrap::Unwrap<QWidgetWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QWidget* widget = widget_wrap->GetWrapped();
 
   q->simulate(widget);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

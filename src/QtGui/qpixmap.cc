@@ -27,14 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
 #include "../qt_v8.h"
 #include "qpixmap.h"
 #include "qcolor.h"
 
 using namespace v8;
 
-Persistent<Function> QPixmapWrap::constructor;
+Nan::Persistent<Function> QPixmapWrap::constructor;
 
 QPixmapWrap::QPixmapWrap(int width, int height) : q_(NULL) {
   q_ = new QPixmap(width, height);
@@ -45,86 +44,71 @@ QPixmapWrap::~QPixmapWrap() {
 
 void QPixmapWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPixmap").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("width").ToLocalChecked(),
-      FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("height").ToLocalChecked(),
-      FunctionTemplate::New(Height)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("save").ToLocalChecked(),
-      FunctionTemplate::New(Save)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("fill").ToLocalChecked(),
-      FunctionTemplate::New(Fill)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "width", Width);
+  Nan::SetPrototypeMethod(tpl, "height", Height);
+  Nan::SetPrototypeMethod(tpl, "save", Save);
+  Nan::SetPrototypeMethod(tpl, "fill", Fill);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QPixmap").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QPixmap").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QPixmapWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPixmapWrap* w = new QPixmapWrap(args[0]->IntegerValue(), 
-      args[1]->IntegerValue());
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QPixmapWrap::New) {
+  QPixmapWrap* w = new QPixmapWrap(info[0]->IntegerValue(), 
+      info[1]->IntegerValue());
+  w->Wrap(info.This());
 }
 
 Handle<Value> QPixmapWrap::NewInstance(QPixmap q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QPixmapWrap* w = node::ObjectWrap::Unwrap<QPixmapWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QPixmapWrap::Width(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
+NAN_METHOD(QPixmapWrap::Width) {
+  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->width()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->width()));
 }
 
-Handle<Value> QPixmapWrap::Height(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
+NAN_METHOD(QPixmapWrap::Height) {
+  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->height()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->height()));
 }
 
-Handle<Value> QPixmapWrap::Save(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
+NAN_METHOD(QPixmapWrap::Save) {
+  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  QString file(qt_v8::ToQString(args[0]->ToString()));
+  QString file(qt_v8::ToQString(info[0]->ToString()));
 
-  return scope.Close(Boolean::New( q->save(file) ));
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->save(file)));
 }
 
 // Supports:
 //    fill()
 //    fill(QColor color)
-Handle<Value> QPixmapWrap::Fill(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(args.This());
+NAN_METHOD(QPixmapWrap::Fill) {
+  QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     // Unwrap QColor
     QColorWrap* color_wrap = ObjectWrap::Unwrap<QColorWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QColor* color = color_wrap->GetWrapped();
 
     q->fill(*color);
@@ -132,5 +116,5 @@ Handle<Value> QPixmapWrap::Fill(const FunctionCallbackInfo<Value>& args) {
     q->fill();
   }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

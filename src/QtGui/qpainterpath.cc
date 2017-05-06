@@ -27,19 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "../QtCore/qpointf.h"
 #include "qpainterpath.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QPainterPathWrap::constructor;
+Nan::Persistent<Function> QPainterPathWrap::constructor;
 
 // Supported implementations:
 //   QPainterPath ( ??? )
-QPainterPathWrap::QPainterPathWrap(const FunctionCallbackInfo<Value>& args) {
+QPainterPathWrap::QPainterPathWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
   q_ = new QPainterPath();
 }
 
@@ -49,105 +47,90 @@ QPainterPathWrap::~QPainterPathWrap() {
 
 void QPainterPathWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPainterPath").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("moveTo").ToLocalChecked(),
-      FunctionTemplate::New(MoveTo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("lineTo").ToLocalChecked(),
-      FunctionTemplate::New(LineTo)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("currentPosition").ToLocalChecked(),
-      FunctionTemplate::New(CurrentPosition)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("closeSubpath").ToLocalChecked(),
-      FunctionTemplate::New(CloseSubpath)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "moveTo", MoveTo);
+  Nan::SetPrototypeMethod(tpl, "lineTo", LineTo);
+  Nan::SetPrototypeMethod(tpl, "currentPosition", CurrentPosition);
+  Nan::SetPrototypeMethod(tpl, "closeSubpath", CloseSubpath);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QPainterPath").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QPainterPath").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QPainterPathWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterPathWrap* w = new QPainterPathWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QPainterPathWrap::New) {
+  QPainterPathWrap* w = new QPainterPathWrap(info);
+  w->Wrap(info.This());
 }
 
 // Supported versions:
 //   moveTo( QPointF() )
-Handle<Value> QPainterPathWrap::MoveTo(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
+NAN_METHOD(QPainterPathWrap::MoveTo) {
+  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(info.This());
   QPainterPath* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
   
   if (arg0_constructor != "QPointF")
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterPathWrap::MoveTo: argument not recognized")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
 
   // moveTo( QPointF point )
   QPointFWrap* pointf_wrap = ObjectWrap::Unwrap<QPointFWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QPointF* pointf = pointf_wrap->GetWrapped();
 
   q->moveTo(*pointf);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QPainterPathWrap::CurrentPosition(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
+NAN_METHOD(QPainterPathWrap::CurrentPosition) {
+  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(info.This());
   QPainterPath* q = w->GetWrapped();
 
-  return scope.Close(QPointFWrap::NewInstance(q->currentPosition()));
+  info.GetReturnValue().Set(QPointFWrap::NewInstance(q->currentPosition()));
 }
 
 // Supported versions:
 //   lineTo( QPointF() )
-Handle<Value> QPainterPathWrap::LineTo(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
+NAN_METHOD(QPainterPathWrap::LineTo) {
+  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(info.This());
   QPainterPath* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
   
   if (arg0_constructor != "QPointF")
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterPathWrap::MoveTo: argument not recognized")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
 
   // lineTo( QPointF point )
   QPointFWrap* pointf_wrap = ObjectWrap::Unwrap<QPointFWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QPointF* pointf = pointf_wrap->GetWrapped();
 
   q->lineTo(*pointf);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QPainterPathWrap::CloseSubpath(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(args.This());
+NAN_METHOD(QPainterPathWrap::CloseSubpath) {
+  QPainterPathWrap* w = ObjectWrap::Unwrap<QPainterPathWrap>(info.This());
   QPainterPath* q = w->GetWrapped();
 
   q->closeSubpath();
   
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

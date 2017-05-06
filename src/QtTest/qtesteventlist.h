@@ -27,11 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QTESTEVENTLISTWRAP_H
-#define QTESTEVENTLISTWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #define QT_GUI_LIB // necessary for QTestEventList
+#define QT_WIDGETS_LIB // necessary for QTestEventList
 #include <QTestEventList>
 
 class QTestEventListWrap : public node::ObjectWrap {
@@ -42,16 +44,14 @@ class QTestEventListWrap : public node::ObjectWrap {
  private:
   QTestEventListWrap();
   ~QTestEventListWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> AddMouseClick(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> AddKeyPress(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Simulate(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(AddMouseClick);
+  static NAN_METHOD(AddKeyPress);
+  static NAN_METHOD(Simulate);
 
   // Wrapped object
   QTestEventList* q_;
 };
-
-#endif

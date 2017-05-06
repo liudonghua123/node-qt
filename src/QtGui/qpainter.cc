@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "../qt_v8.h"
 #include "qpainter.h"
 #include "qpixmap.h"
@@ -43,7 +41,7 @@
 
 using namespace v8;
 
-Persistent<Function> QPainterWrap::constructor;
+Nan::Persistent<Function> QPainterWrap::constructor;
 
 QPainterWrap::QPainterWrap() {
   q_ = new QPainter();
@@ -54,229 +52,195 @@ QPainterWrap::~QPainterWrap() {
 
 void QPainterWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPainter").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("begin").ToLocalChecked(),
-      FunctionTemplate::New(Begin)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("end").ToLocalChecked(),
-      FunctionTemplate::New(End)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("isActive").ToLocalChecked(),
-      FunctionTemplate::New(IsActive)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("save").ToLocalChecked(),
-      FunctionTemplate::New(Save)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("restore").ToLocalChecked(),
-      FunctionTemplate::New(Restore)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setPen").ToLocalChecked(),
-      FunctionTemplate::New(SetPen)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setFont").ToLocalChecked(),
-      FunctionTemplate::New(SetFont)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setMatrix").ToLocalChecked(),
-      FunctionTemplate::New(SetMatrix)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("fillRect").ToLocalChecked(),
-      FunctionTemplate::New(FillRect)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("drawText").ToLocalChecked(),
-      FunctionTemplate::New(DrawText)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("drawPixmap").ToLocalChecked(),
-      FunctionTemplate::New(DrawPixmap)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("drawImage").ToLocalChecked(),
-      FunctionTemplate::New(DrawImage)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("strokePath").ToLocalChecked(),
-      FunctionTemplate::New(StrokePath)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "begin", Begin);
+  Nan::SetPrototypeMethod(tpl, "end", End);
+  Nan::SetPrototypeMethod(tpl, "isActive", IsActive);
+  Nan::SetPrototypeMethod(tpl, "save", Save);
+  Nan::SetPrototypeMethod(tpl, "restore", Restore);
+  Nan::SetPrototypeMethod(tpl, "setPen", SetPen);
+  Nan::SetPrototypeMethod(tpl, "setFont", SetFont);
+  Nan::SetPrototypeMethod(tpl, "setMatrix", SetMatrix);
+  Nan::SetPrototypeMethod(tpl, "fillRect", FillRect);
+  Nan::SetPrototypeMethod(tpl, "drawText", DrawText);
+  Nan::SetPrototypeMethod(tpl, "drawPixmap", DrawPixmap);
+  Nan::SetPrototypeMethod(tpl, "drawImage", DrawImage);
+  Nan::SetPrototypeMethod(tpl, "strokePath", StrokePath);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QPainter").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QPainter").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QPainterWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  if (args.Length()>0) {
-    return ThrowException(Exception::TypeError(
-        String::New("QPainterWrap: use begin() for initialization")));
+NAN_METHOD(QPainterWrap::New) {
+  if (info.Length()>0) {
+    return Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QPainterWrap: use begin() for initialization").ToLocalChecked()));
   }
 
   QPainterWrap* w = new QPainterWrap();
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
-Handle<Value> QPainterWrap::Begin(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::Begin) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  if (!args[0]->IsObject())
-    return ThrowException(Exception::TypeError(
-        String::New("QPainterWrap:Begin: bad arguments")));
+  if (!info[0]->IsObject())
+    return Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QPainterWrap:Begin: bad arguments").ToLocalChecked()));
 
   QString constructor_name = 
-    qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+    qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   
   // Determine argument type (from its constructor) so we can unwrap it
   if (constructor_name == "QPixmap") {
     // QPixmap
     QPixmapWrap* pixmap_wrap = ObjectWrap::Unwrap<QPixmapWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QPixmap* pixmap = pixmap_wrap->GetWrapped();
 
-    return scope.Close(Boolean::New( q->begin(pixmap) ));
+    info.GetReturnValue().Set(Nan::New<Boolean>(q->begin(pixmap)));
   } else if (constructor_name == "QWidget") {
     // QWidget
     QWidgetWrap* widget_wrap = ObjectWrap::Unwrap<QWidgetWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QWidget* widget = widget_wrap->GetWrapped();
 
-    return scope.Close(Boolean::New( q->begin(widget) ));
+    info.GetReturnValue().Set(Nan::New<Boolean>(q->begin(widget)));
   }
 
   // Unknown argument type
-  return scope.Close(Boolean::New( false ));
+  info.GetReturnValue().Set(Nan::False());
 }
 
-Handle<Value> QPainterWrap::End(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::End) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  return scope.Close(Boolean::New( q->end() ));
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->end()));
 }
 
-Handle<Value> QPainterWrap::IsActive(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::IsActive) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  return scope.Close(Boolean::New( q->isActive() ));
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->isActive()));
 }
 
-Handle<Value> QPainterWrap::Save(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::Save) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   q->save();
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QPainterWrap::Restore(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::Restore) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   q->restore();
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported implementations:
 //   setPen( QPen pen )
-Handle<Value> QPainterWrap::SetPen(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::SetPen) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
 
   if (arg0_constructor != "QPen")
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::SetPen: bad argument")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::SetPen: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QPenWrap* pen_wrap = ObjectWrap::Unwrap<QPenWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QPen* pen = pen_wrap->GetWrapped();
 
   q->setPen(*pen);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QPainterWrap::SetFont(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::SetFont) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
 
   if (arg0_constructor != "QFont")
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::SetFont: bad argument")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::SetFont: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QFontWrap* font_wrap = ObjectWrap::Unwrap<QFontWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QFont* font = font_wrap->GetWrapped();
 
   q->setFont(*font);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // This seems to be undocumented in Qt, but it exists!
-Handle<Value> QPainterWrap::SetMatrix(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::SetMatrix) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
 
   if (arg0_constructor != "QMatrix")
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::SetMatrix: bad argument")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::SetMatrix: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QMatrixWrap* matrix_wrap = ObjectWrap::Unwrap<QMatrixWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QMatrix* matrix = matrix_wrap->GetWrapped();
 
-  q->setMatrix(*matrix, args[1]->BooleanValue());
+  q->setMatrix(*matrix, info[1]->BooleanValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported versions:
 //   fillRect(int x, int y, int w, int h, QBrush brush)
 //   fillRect(int x, int y, int w, int h, QColor color)
 //   fillRect(int x, int y, int w, int h, Qt::GlobalColor color)
-Handle<Value> QPainterWrap::FillRect(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::FillRect) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  if (!args[0]->IsNumber() || !args[1]->IsNumber() || !args[2]->IsNumber() ||
-      !args[3]->IsNumber())
-    return scope.Close(Undefined());
+  if (!info[0]->IsNumber() || !info[1]->IsNumber() || !info[2]->IsNumber() ||
+      !info[3]->IsNumber())
+    info.GetReturnValue().Set(Nan::Undefined());
       
   QString arg4_constructor;
-  if (args[4]->IsObject()) {
+  if (info[4]->IsObject()) {
     arg4_constructor = 
-        qt_v8::ToQString(args[4]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[4]->ToObject()->GetConstructorName());
   }
   
   if (arg4_constructor == "QBrush") {
@@ -284,164 +248,156 @@ Handle<Value> QPainterWrap::FillRect(const FunctionCallbackInfo<Value>& args) {
 
     // Unwrap QBrush
     QBrushWrap* brush_wrap = ObjectWrap::Unwrap<QBrushWrap>(
-        args[4]->ToObject());
+        info[4]->ToObject());
     QBrush* brush = brush_wrap->GetWrapped();
 
-    q->fillRect(args[0]->IntegerValue(), args[1]->IntegerValue(),
-                args[2]->IntegerValue(), args[3]->IntegerValue(), 
+    q->fillRect(info[0]->IntegerValue(), info[1]->IntegerValue(),
+                info[2]->IntegerValue(), info[3]->IntegerValue(), 
                 *brush);
   } else if (arg4_constructor == "QColor") {
     // fillRect(int x, int y, int w, int h, QColor color)
 
     // Unwrap QColor
     QColorWrap* color_wrap = ObjectWrap::Unwrap<QColorWrap>(
-        args[4]->ToObject());
+        info[4]->ToObject());
     QColor* color = color_wrap->GetWrapped();
 
-    q->fillRect(args[0]->IntegerValue(), args[1]->IntegerValue(),
-                args[2]->IntegerValue(), args[3]->IntegerValue(), 
+    q->fillRect(info[0]->IntegerValue(), info[1]->IntegerValue(),
+                info[2]->IntegerValue(), info[3]->IntegerValue(), 
                 *color);
-  } else if (args[4]->IsNumber()) {
+  } else if (info[4]->IsNumber()) {
     // fillRect(int x, int y, int w, int h, Qt::GlobalColor color)
 
-    q->fillRect(args[0]->IntegerValue(), args[1]->IntegerValue(),
-                args[2]->IntegerValue(), args[3]->IntegerValue(), 
-                (Qt::GlobalColor)args[4]->IntegerValue());
+    q->fillRect(info[0]->IntegerValue(), info[1]->IntegerValue(),
+                info[2]->IntegerValue(), info[3]->IntegerValue(), 
+                (Qt::GlobalColor)info[4]->IntegerValue());
   } else {
-    return ThrowException(Exception::TypeError(
-        String::New("QPainterWrap:fillRect: bad arguments")));
+    return Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QPainterWrap:fillRect: bad arguments").ToLocalChecked()));
   }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported versions:
 //   drawText(int x, int y, "text")
-Handle<Value> QPainterWrap::DrawText(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::DrawText) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  if (!args[0]->IsNumber() || !args[1]->IsNumber() || !args[2]->IsString())
-    return ThrowException(Exception::TypeError(
-        String::New("QPainterWrap:DrawText: bad arguments")));
+  if (!info[0]->IsNumber() || !info[1]->IsNumber() || !info[2]->IsString())
+    return Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QPainterWrap:DrawText: bad arguments").ToLocalChecked()));
       
-  q->drawText(args[0]->IntegerValue(), args[1]->IntegerValue(), 
-      qt_v8::ToQString(args[2]->ToString()));
+  q->drawText(info[0]->IntegerValue(), info[1]->IntegerValue(), 
+      qt_v8::ToQString(info[2]->ToString()));
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported versions:
 //   drawPixmap(int x, int y, QPixmap pixmap)
-Handle<Value> QPainterWrap::DrawPixmap(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::DrawPixmap) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg2_constructor;
-  if (args[2]->IsObject()) {
+  if (info[2]->IsObject()) {
     arg2_constructor = 
-        qt_v8::ToQString(args[2]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[2]->ToObject()->GetConstructorName());
   }
 
-  if (arg2_constructor != "QPixmap" ) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::DrawPixmap: pixmap argument not recognized")));
+  if (arg2_constructor != "QPixmap") {
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::DrawPixmap: pixmap argument not recognized").ToLocalChecked()));
   }
   
   // Unwrap QPixmap
   QPixmapWrap* pixmap_wrap = ObjectWrap::Unwrap<QPixmapWrap>(
-      args[2]->ToObject());
+      info[2]->ToObject());
   QPixmap* pixmap = pixmap_wrap->GetWrapped();
 
   if (pixmap->isNull()) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::DrawPixmap: pixmap is null, no size set?")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::DrawPixmap: pixmap is null, no size set?").ToLocalChecked()));
   }
 
-  q->drawPixmap(args[0]->IntegerValue(), args[1]->IntegerValue(), *pixmap);
+  q->drawPixmap(info[0]->IntegerValue(), info[1]->IntegerValue(), *pixmap);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported versions:
 //   drawImage( int x, int y, QImage image )
-Handle<Value> QPainterWrap::DrawImage(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::DrawImage) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg2_constructor;
-  if (args[2]->IsObject()) {
+  if (info[2]->IsObject()) {
     arg2_constructor = 
-        qt_v8::ToQString(args[2]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[2]->ToObject()->GetConstructorName());
   }
 
-  if (arg2_constructor != "QImage" ) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::DrawImage: image argument not recognized")));
+  if (arg2_constructor != "QImage") {
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::DrawImage: image argument not recognized").ToLocalChecked()));
   }
   
   // Unwrap QImage
   QImageWrap* image_wrap = ObjectWrap::Unwrap<QImageWrap>(
-      args[2]->ToObject());
+      info[2]->ToObject());
   QImage* image = image_wrap->GetWrapped();
 
   if (image->isNull()) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::DrawImage: image is null, no size set?")));
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::DrawImage: image is null, no size set?").ToLocalChecked()));
   }
 
-  q->drawImage(args[0]->IntegerValue(), args[1]->IntegerValue(), *image);
+  q->drawImage(info[0]->IntegerValue(), info[1]->IntegerValue(), *image);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported versions:
 //   strokePath( QPainterPath path, QPen pen )
-Handle<Value> QPainterWrap::StrokePath(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(args.This());
+NAN_METHOD(QPainterWrap::StrokePath) {
+  QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
 
-  if (arg0_constructor != "QPainterPath" ) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::StrokePath: bad arguments")));
+  if (arg0_constructor != "QPainterPath") {
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
   }
   
   QString arg1_constructor;
-  if (args[1]->IsObject()) {
+  if (info[1]->IsObject()) {
     arg1_constructor = 
-        qt_v8::ToQString(args[1]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[1]->ToObject()->GetConstructorName());
   }
 
-  if (arg1_constructor != "QPen" ) {
-    return ThrowException(Exception::TypeError(
-      String::New("QPainterWrap::StrokePath: bad arguments")));
+  if (arg1_constructor != "QPen") {
+    return Nan::ThrowError(Exception::TypeError(
+      Nan::New<String>("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
   }
 
   // Unwrap QPainterPath
   QPainterPathWrap* path_wrap = ObjectWrap::Unwrap<QPainterPathWrap>(
-      args[0]->ToObject());
+      info[0]->ToObject());
   QPainterPath* path = path_wrap->GetWrapped();
 
   // Unwrap QPen
   QPenWrap* pen_wrap = ObjectWrap::Unwrap<QPenWrap>(
-      args[1]->ToObject());
+      info[1]->ToObject());
   QPen* pen = pen_wrap->GetWrapped();
 
   q->strokePath(*path, *pen);
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

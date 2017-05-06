@@ -27,14 +27,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
 #include "qscrollbar.h"
 
 using namespace v8;
 
-Persistent<Function> QScrollBarWrap::constructor;
+Nan::Persistent<Function> QScrollBarWrap::constructor;
 
-QScrollBarWrap::QScrollBarWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
+QScrollBarWrap::QScrollBarWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
 }
 
 QScrollBarWrap::~QScrollBarWrap() {
@@ -44,55 +43,46 @@ QScrollBarWrap::~QScrollBarWrap() {
 
 void QScrollBarWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QScrollBar").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("value").ToLocalChecked(),
-      FunctionTemplate::New(Value)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setValue").ToLocalChecked(),
-      FunctionTemplate::New(SetValue)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "value", Value);
+  Nan::SetPrototypeMethod(tpl, "setValue", SetValue);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QScrollBar").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QScrollBar").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QScrollBarWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QScrollBarWrap* w = new QScrollBarWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QScrollBarWrap::New) {
+  QScrollBarWrap* w = new QScrollBarWrap(info);
+  w->Wrap(info.This());
 }
 
 Handle<Value> QScrollBarWrap::NewInstance(QScrollBar *q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QScrollBarWrap* w = node::ObjectWrap::Unwrap<QScrollBarWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QScrollBarWrap::Value(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(args.This());
+NAN_METHOD(QScrollBarWrap::Value) {
+  QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(info.This());
   QScrollBar* q = w->GetWrapped();
 
-  return scope.Close(Integer::New(q->value()));
+  info.GetReturnValue().Set(Nan::New<Integer>(q->value()));
 }
 
-Handle<Value> QScrollBarWrap::SetValue(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(args.This());
+NAN_METHOD(QScrollBarWrap::SetValue) {
+  QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(info.This());
   QScrollBar* q = w->GetWrapped();
 
-  q->setValue(args[0]->IntegerValue());
+  q->setValue(info[0]->IntegerValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "../qt_v8.h"
 #include "../QtCore/qsize.h"
 #include "qwidget.h"
@@ -37,128 +35,102 @@
 
 using namespace v8;
 
-Persistent<Function> QWidgetWrap::constructor;
+Nan::Persistent<Function> QWidgetWrap::constructor;
 
 //
 // QWidgetImpl()
 //
 
 QWidgetImpl::QWidgetImpl(QWidgetImpl* parent) : QWidget(parent) {
-  // Initialize callbacks as boolean values so we can test if the callback
-  // has been set via ->IsFunction() below
-  paintEventCallback_ = Persistent<Boolean>::New(Boolean::New(false));
-  mousePressCallback_ = Persistent<Boolean>::New(Boolean::New(false));
-  mouseReleaseCallback_ = Persistent<Boolean>::New(Boolean::New(false));
-  mouseMoveCallback_ = Persistent<Boolean>::New(Boolean::New(false));
-  keyPressCallback_ = Persistent<Boolean>::New(Boolean::New(false));
-  keyReleaseCallback_ = Persistent<Boolean>::New(Boolean::New(false));
 }
 
 QWidgetImpl::~QWidgetImpl() {
-  paintEventCallback_.Dispose();
-  mousePressCallback_.Dispose();
-  mouseReleaseCallback_.Dispose();
-  mouseMoveCallback_.Dispose();
-  keyPressCallback_.Dispose();
-  keyReleaseCallback_.Dispose();
+  delete &paintEventCallback_;
+  delete &mousePressCallback_;
+  delete &mouseReleaseCallback_;
+  delete &mouseMoveCallback_;
+  delete &keyPressCallback_;
+  delete &keyReleaseCallback_;
 }
 
 void QWidgetImpl::paintEvent(QPaintEvent* e) {
-  HandleScope scope;
-  
-  if (!paintEventCallback_->IsFunction())
+  if (!paintEventCallback_.IsEmpty())
     return;
 
   const unsigned argc = 0;
   Handle<Value> argv[1] = {};
-  Handle<Function> cb = Persistent<Function>::Cast(paintEventCallback_);
     
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  Nan::Callback(Nan::New(paintEventCallback_)).Call(argc, argv);
 }
 
 void QWidgetImpl::mousePressEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  HandleScope scope;
-  
-  if (!mousePressCallback_->IsFunction())
+  if (!mousePressCallback_.IsEmpty())
     return;
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
     QMouseEventWrap::NewInstance(*e)
   };
-  Handle<Function> cb = Persistent<Function>::Cast(mousePressCallback_);
-    
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  
+  Nan::Callback(Nan::New(mousePressCallback_)).Call(argc, argv);
 }
 
 void QWidgetImpl::mouseReleaseEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  HandleScope scope;
-  
-  if (!mouseReleaseCallback_->IsFunction())
+  if (!mouseReleaseCallback_.IsEmpty())
     return;
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
     QMouseEventWrap::NewInstance(*e)
   };
-  Handle<Function> cb = Persistent<Function>::Cast(mouseReleaseCallback_);
-    
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  
+  Nan::Callback(Nan::New(mouseReleaseCallback_)).Call(argc, argv);
 }
 
 void QWidgetImpl::mouseMoveEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  HandleScope scope;
-  
-  if (!mouseMoveCallback_->IsFunction())
+  if (!mouseMoveCallback_.IsEmpty())
     return;
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
     QMouseEventWrap::NewInstance(*e)
   };
-  Handle<Function> cb = Persistent<Function>::Cast(mouseMoveCallback_);
-    
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  
+  Nan::Callback(Nan::New(mouseMoveCallback_)).Call(argc, argv);
 }
 
 void QWidgetImpl::keyPressEvent(QKeyEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  HandleScope scope;
-  
-  if (!keyPressCallback_->IsFunction())
+  if (!keyPressCallback_.IsEmpty())
     return;
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
     QKeyEventWrap::NewInstance(*e)
   };
-  Handle<Function> cb = Persistent<Function>::Cast(keyPressCallback_);
-    
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  
+  Nan::Callback(Nan::New(keyPressCallback_)).Call(argc, argv);
 }
 
 void QWidgetImpl::keyReleaseEvent(QKeyEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  HandleScope scope;
-  
-  if (!keyReleaseCallback_->IsFunction())
+  if (!keyReleaseCallback_.IsEmpty())
     return;
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
     QKeyEventWrap::NewInstance(*e)
   };
-  Handle<Function> cb = Persistent<Function>::Cast(keyReleaseCallback_);
-    
-  cb->Call(Context::GetCurrent()->Global(), argc, argv);
+  
+  Nan::Callback(Nan::New(keyReleaseCallback_)).Call(argc, argv);
 }
 
 //
@@ -175,155 +147,115 @@ QWidgetWrap::~QWidgetWrap() {
 
 void QWidgetWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QWidget").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Wrapped methods
-  tpl->PrototypeTemplate()->Set(Nan::New("resize").ToLocalChecked(),
-      FunctionTemplate::New(Resize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("show").ToLocalChecked(),
-      FunctionTemplate::New(Show)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("close").ToLocalChecked(),
-      FunctionTemplate::New(Close)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("size").ToLocalChecked(),
-      FunctionTemplate::New(Size)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("width").ToLocalChecked(),
-      FunctionTemplate::New(Width)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("height").ToLocalChecked(),
-      FunctionTemplate::New(Height)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("parent").ToLocalChecked(),
-      FunctionTemplate::New(Parent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("objectName").ToLocalChecked(),
-      FunctionTemplate::New(ObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setObjectName").ToLocalChecked(),
-      FunctionTemplate::New(SetObjectName)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("update").ToLocalChecked(),
-      FunctionTemplate::New(Update)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("hasMouseTracking").ToLocalChecked(),
-      FunctionTemplate::New(HasMouseTracking)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setMouseTracking").ToLocalChecked(),
-      FunctionTemplate::New(SetMouseTracking)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setFocusPolicy").ToLocalChecked(),
-      FunctionTemplate::New(SetFocusPolicy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("move").ToLocalChecked(),
-      FunctionTemplate::New(Move)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("x").ToLocalChecked(),
-      FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("y").ToLocalChecked(),
-      FunctionTemplate::New(Y)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "resize", Resize);
+  Nan::SetPrototypeMethod(tpl, "show", Show);
+  Nan::SetPrototypeMethod(tpl, "close", Close);
+  Nan::SetPrototypeMethod(tpl, "size", Size);
+  Nan::SetPrototypeMethod(tpl, "width", Width);
+  Nan::SetPrototypeMethod(tpl, "height", Height);
+  Nan::SetPrototypeMethod(tpl, "parent", Parent);
+  Nan::SetPrototypeMethod(tpl, "objectName", ObjectName);
+  Nan::SetPrototypeMethod(tpl, "setObjectName", SetObjectName);
+  Nan::SetPrototypeMethod(tpl, "update", Update);
+  Nan::SetPrototypeMethod(tpl, "hasMouseTracking", HasMouseTracking);
+  Nan::SetPrototypeMethod(tpl, "setMouseTracking", SetMouseTracking);
+  Nan::SetPrototypeMethod(tpl, "setFocusPolicy", SetFocusPolicy);
+  Nan::SetPrototypeMethod(tpl, "move", Move);
+  Nan::SetPrototypeMethod(tpl, "x", X);
+  Nan::SetPrototypeMethod(tpl, "y", Y);
 
   // Events
-  tpl->PrototypeTemplate()->Set(Nan::New("paintEvent").ToLocalChecked(),
-      FunctionTemplate::New(PaintEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("mousePressEvent").ToLocalChecked(),
-      FunctionTemplate::New(MousePressEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("mouseReleaseEvent").ToLocalChecked(),
-      FunctionTemplate::New(MouseReleaseEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("mouseMoveEvent").ToLocalChecked(),
-      FunctionTemplate::New(MouseMoveEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("keyPressEvent").ToLocalChecked(),
-      FunctionTemplate::New(KeyPressEvent)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("keyReleaseEvent").ToLocalChecked(),
-      FunctionTemplate::New(KeyReleaseEvent)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "paintEvent", PaintEvent);
+  Nan::SetPrototypeMethod(tpl, "mousePressEvent", MousePressEvent);
+  Nan::SetPrototypeMethod(tpl, "mouseReleaseEvent", MouseReleaseEvent);
+  Nan::SetPrototypeMethod(tpl, "mouseMoveEvent", MouseMoveEvent);
+  Nan::SetPrototypeMethod(tpl, "keyPressEvent", KeyPressEvent);
+  Nan::SetPrototypeMethod(tpl, "keyReleaseEvent", KeyReleaseEvent);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QWidget").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QWidget").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QWidgetWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
+NAN_METHOD(QWidgetWrap::New) {
   QWidgetImpl* q_parent = 0;
 
-  if (args.Length() > 0) {
-    QWidgetWrap* w_parent = node::ObjectWrap::Unwrap<QWidgetWrap>(args[0]->ToObject());
+  if (info.Length() > 0) {
+    QWidgetWrap* w_parent = node::ObjectWrap::Unwrap<QWidgetWrap>(info[0]->ToObject());
     q_parent = w_parent->GetWrapped();
   }
 
   QWidgetWrap* w = new QWidgetWrap(q_parent);
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
-Handle<Value> QWidgetWrap::Resize(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Resize) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->resize(args[0]->NumberValue(), args[1]->NumberValue());
+  q->resize(info[0]->NumberValue(), info[1]->NumberValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::Show(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Show) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
   q->show();
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::Close(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Close) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
   q->close();
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::Size(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Size) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close( QSizeWrap::NewInstance(q->size()) );
+  info.GetReturnValue().Set(QSizeWrap::NewInstance(q->size()));
 }
 
-Handle<Value> QWidgetWrap::Width(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Width) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close( Integer::New(q->width()) );
+  info.GetReturnValue().Set(Nan::New<Integer>(q->width()));
 }
 
-Handle<Value> QWidgetWrap::Height(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Height) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close( Integer::New(q->height()) );
+  info.GetReturnValue().Set(Nan::New<Integer>(q->height()));
 }
 
-Handle<Value> QWidgetWrap::ObjectName(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::ObjectName) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close(qt_v8::FromQString(q->objectName()));
+  info.GetReturnValue().Set(qt_v8::FromQString(q->objectName()));
 }
 
-Handle<Value> QWidgetWrap::SetObjectName(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::SetObjectName) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->setObjectName(qt_v8::ToQString(args[0]->ToString()));
+  q->setObjectName(qt_v8::ToQString(info[0]->ToString()));
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
@@ -332,186 +264,158 @@ Handle<Value> QWidgetWrap::SetObjectName(const FunctionCallbackInfo<Value>& args
 // Qt: Parent() returns QObject
 // Intended mostly for sanity checks
 //
-Handle<Value> QWidgetWrap::Parent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Parent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close(qt_v8::FromQString(q->parent()->objectName()));
+  info.GetReturnValue().Set(qt_v8::FromQString(q->parent()->objectName()));
 }
 
 //
 // PaintEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::PaintEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::PaintEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->paintEventCallback_.Dispose();
-  q->paintEventCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->paintEventCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
 // MousePressEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MousePressEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::MousePressEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->mousePressCallback_.Dispose();
-  q->mousePressCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->mousePressCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
 // MouseReleaseEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MouseReleaseEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::MouseReleaseEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->mouseReleaseCallback_.Dispose();
-  q->mouseReleaseCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->mouseReleaseCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
 // MouseMoveEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::MouseMoveEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::MouseMoveEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->mouseMoveCallback_.Dispose();
-  q->mouseMoveCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->mouseMoveCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
 // KeyPressEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::KeyPressEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::KeyPressEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->keyPressCallback_.Dispose();
-  q->keyPressCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->keyPressCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 //
 // KeyReleaseEvent()
 // Binds a callback to Qt's event
 //
-Handle<Value> QWidgetWrap::KeyReleaseEvent(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::KeyReleaseEvent) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->keyReleaseCallback_.Dispose();
-  q->keyReleaseCallback_ = Persistent<Function>::New(
-      Local<Function>::Cast(args[0]));
+  if (info[0]->IsFunction()) {
+    q->keyReleaseCallback_.Reset(Local<Function>::Cast(info[0]));
+  }
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::Update(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Update) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
   q->update();
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::HasMouseTracking(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::HasMouseTracking) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close(Boolean::New(q->hasMouseTracking()));
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->hasMouseTracking()));
 }
 
-Handle<Value> QWidgetWrap::SetMouseTracking(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::SetMouseTracking) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->setMouseTracking(args[0]->BooleanValue());
+  q->setMouseTracking(info[0]->BooleanValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::SetFocusPolicy(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::SetFocusPolicy) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->setFocusPolicy((Qt::FocusPolicy)(args[0]->IntegerValue()));
+  q->setFocusPolicy((Qt::FocusPolicy)(info[0]->IntegerValue()));
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 // Supported implementations:
 //    move (int x, int y)
-Handle<Value> QWidgetWrap::Move(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Move) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  q->move(args[0]->IntegerValue(), args[1]->IntegerValue());
+  q->move(info[0]->IntegerValue(), info[1]->IntegerValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QWidgetWrap::X(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::X) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close(Integer::New(q->x()));
+  info.GetReturnValue().Set(Nan::New<Integer>(q->x()));
 }
 
-Handle<Value> QWidgetWrap::Y(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(args.This());
+NAN_METHOD(QWidgetWrap::Y) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  return scope.Close(Integer::New(q->y()));
+  info.GetReturnValue().Set(Nan::New<Integer>(q->y()));
 }

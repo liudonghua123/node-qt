@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef __TEMPLATE__WRAP_H
-#define __TEMPLATE__WRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <__Template__>
 
 class __Template__Wrap : public node::ObjectWrap {
@@ -44,16 +45,14 @@ class __Template__Wrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(__Template__ q);
 
  private:
-  __Template__Wrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  __Template__Wrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~__Template__Wrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Example(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Example);
 
   // Wrapped object
   __Template__* q_;
 };
-
-#endif

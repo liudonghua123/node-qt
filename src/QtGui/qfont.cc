@@ -27,22 +27,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qfont.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QFontWrap::constructor;
+Nan::Persistent<Function> QFontWrap::constructor;
 
 // Supported implementations:
 //   QFont ( )
 //   QFont ( const QString & family, int pointSize = -1, int weight = -1, 
 //     bool italic = false )
 //   QFont ( QFont font )
-QFontWrap::QFontWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
-  if (args.Length() == 0) {
+QFontWrap::QFontWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
+  if (info.Length() == 0) {
     // QFont ()
 
     q_ = new QFont;
@@ -51,17 +49,17 @@ QFontWrap::QFontWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
 
   // QFont ( QFont font )
 
-  if (args.Length() == 1 && args[0]->IsObject()) {
+  if (info.Length() == 1 && info[0]->IsObject()) {
     QString arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
 
     if (arg0_constructor != "QFont")
-      ThrowException(Exception::TypeError(
-        String::New("QFont::QFont: bad argument")));
+      Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QFont::QFont: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QFontWrap* q_wrap = ObjectWrap::Unwrap<QFontWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QFont* q = q_wrap->GetWrapped();
 
     q_ = new QFont(*q);
@@ -70,27 +68,27 @@ QFontWrap::QFontWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
   // QFont ( const QString & family, int pointSize = -1, int weight = -1, 
   //   bool italic = false )
 
-  if (args.Length() == 1 && args[0]->IsString()) {
-    q_ = new QFont(qt_v8::ToQString(args[0]->ToString()));
+  if (info.Length() == 1 && info[0]->IsString()) {
+    q_ = new QFont(qt_v8::ToQString(info[0]->ToString()));
     return;
   }
 
-  if (args.Length() == 2) {
-    q_ = new QFont(qt_v8::ToQString(args[0]->ToString()), 
-        args[1]->IntegerValue());
+  if (info.Length() == 2) {
+    q_ = new QFont(qt_v8::ToQString(info[0]->ToString()), 
+        info[1]->IntegerValue());
     return;
   }
 
-  if (args.Length() == 3) {
-    q_ = new QFont(qt_v8::ToQString(args[0]->ToString()), 
-        args[1]->IntegerValue(), args[2]->IntegerValue());
+  if (info.Length() == 3) {
+    q_ = new QFont(qt_v8::ToQString(info[0]->ToString()), 
+        info[1]->IntegerValue(), info[2]->IntegerValue());
     return;
   }
 
-  if (args.Length() == 4) {
-    q_ = new QFont(qt_v8::ToQString(args[0]->ToString()), 
-        args[1]->IntegerValue(), args[2]->IntegerValue(),
-        args[3]->BooleanValue());
+  if (info.Length() == 4) {
+    q_ = new QFont(qt_v8::ToQString(info[0]->ToString()), 
+        info[1]->IntegerValue(), info[2]->IntegerValue(),
+        info[3]->BooleanValue());
     return;
   }
 }
@@ -101,127 +99,100 @@ QFontWrap::~QFontWrap() {
 
 void QFontWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QFont").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("setFamily").ToLocalChecked(),
-      FunctionTemplate::New(SetFamily)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("family").ToLocalChecked(),
-      FunctionTemplate::New(Family)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setPixelSize").ToLocalChecked(),
-      FunctionTemplate::New(SetPixelSize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("pixelSize").ToLocalChecked(),
-      FunctionTemplate::New(PixelSize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setPointSize").ToLocalChecked(),
-      FunctionTemplate::New(SetPointSize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("pointSize").ToLocalChecked(),
-      FunctionTemplate::New(PointSize)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("setPointSizeF").ToLocalChecked(),
-      FunctionTemplate::New(SetPointSizeF)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("pointSizeF").ToLocalChecked(),
-      FunctionTemplate::New(PointSizeF)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "setFamily", SetFamily);
+  Nan::SetPrototypeMethod(tpl, "family", Family);
+  Nan::SetPrototypeMethod(tpl, "setPixelSize", SetPixelSize);
+  Nan::SetPrototypeMethod(tpl, "pixelSize", PixelSize);
+  Nan::SetPrototypeMethod(tpl, "setPointSize", SetPointSize);
+  Nan::SetPrototypeMethod(tpl, "pointSize", PointSize);
+  Nan::SetPrototypeMethod(tpl, "setPointSizeF", SetPointSizeF);
+  Nan::SetPrototypeMethod(tpl, "pointSizeF", PointSizeF);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QFont").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QFont").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QFontWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = new QFontWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QFontWrap::New) {
+  QFontWrap* w = new QFontWrap(info);
+  w->Wrap(info.This());
 }
 
 Handle<Value> QFontWrap::NewInstance(QFont q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QFontWrap* w = node::ObjectWrap::Unwrap<QFontWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QFontWrap::SetFamily(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::SetFamily) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  q->setFamily(qt_v8::ToQString(args[0]->ToString()));
+  q->setFamily(qt_v8::ToQString(info[0]->ToString()));
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QFontWrap::Family(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::Family) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  return scope.Close(qt_v8::FromQString(q->family()));
+  info.GetReturnValue().Set(qt_v8::FromQString(q->family()));
 }
 
-Handle<Value> QFontWrap::SetPixelSize(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::SetPixelSize) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  q->setPixelSize(args[0]->IntegerValue());
+  q->setPixelSize(info[0]->IntegerValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QFontWrap::PixelSize(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::PixelSize) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->pixelSize()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->pixelSize()));
 }
 
-Handle<Value> QFontWrap::SetPointSize(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::SetPointSize) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  q->setPointSize(args[0]->IntegerValue());
+  q->setPointSize(info[0]->IntegerValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QFontWrap::PointSize(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::PointSize) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->pointSize()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->pointSize()));
 }
 
-Handle<Value> QFontWrap::SetPointSizeF(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::SetPointSizeF) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  q->setPointSizeF(args[0]->NumberValue());
+  q->setPointSizeF(info[0]->NumberValue());
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QFontWrap::PointSizeF(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(args.This());
+NAN_METHOD(QFontWrap::PointSizeF) {
+  QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->pointSizeF()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->pointSizeF()));
 }

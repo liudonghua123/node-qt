@@ -27,43 +27,41 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qcolor.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QColorWrap::constructor;
+Nan::Persistent<Function> QColorWrap::constructor;
 
 // Supported implementations:
 //   QColor ( int r, int g, int b, int a = 255 )
 //   QColor ( QString color )
 //   QColor ( QColor )
-QColorWrap::QColorWrap(const FunctionCallbackInfo<Value>& args) {
-  if (args.Length() >= 3) {
+QColorWrap::QColorWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
+  if (info.Length() >= 3) {
     // QColor ( int r, int g, int b, int a = 255 )
     q_ = new QColor(
-        args[0]->IntegerValue(), 
-        args[1]->IntegerValue(),
-        args[2]->IntegerValue(), 
-        args[3]->IsNumber() ? args[3]->IntegerValue() : 255
+        info[0]->IntegerValue(), 
+        info[1]->IntegerValue(),
+        info[2]->IntegerValue(), 
+        info[3]->IsNumber() ? info[3]->IntegerValue() : 255
     );
-  } else if (args[0]->IsString()) {
+  } else if (info[0]->IsString()) {
     // QColor ( QString color )
-    q_ = new QColor( qt_v8::ToQString(args[0]->ToString()) );
-  } else if (args[0]->IsObject()) {
+    q_ = new QColor(qt_v8::ToQString(info[0]->ToString()));
+  } else if (info[0]->IsObject()) {
     // QColor ( QColor color )
     QString arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
 
     if (arg0_constructor != "QColor")
-      ThrowException(Exception::TypeError(
-        String::New("QColor::QColor: bad argument")));
+      Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QColor::QColor: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QColorWrap* q_wrap = ObjectWrap::Unwrap<QColorWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QColor* q = q_wrap->GetWrapped();
 
     q_ = new QColor(*q);
@@ -76,78 +74,60 @@ QColorWrap::~QColorWrap() {
 
 void QColorWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QColor").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("red").ToLocalChecked(),
-      FunctionTemplate::New(Red)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("green").ToLocalChecked(),
-      FunctionTemplate::New(Green)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("blue").ToLocalChecked(),
-      FunctionTemplate::New(Blue)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("alpha").ToLocalChecked(),
-      FunctionTemplate::New(Alpha)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("name").ToLocalChecked(),
-      FunctionTemplate::New(Name)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "red", Red);
+  Nan::SetPrototypeMethod(tpl, "green", Green);
+  Nan::SetPrototypeMethod(tpl, "blue", Blue);
+  Nan::SetPrototypeMethod(tpl, "alpha", Alpha);
+  Nan::SetPrototypeMethod(tpl, "name", Name);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QColor").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QColor").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QColorWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = new QColorWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QColorWrap::New) {
+  QColorWrap* w = new QColorWrap(info);
+  w->Wrap(info.This());
 }
 
-Handle<Value> QColorWrap::Red(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
+NAN_METHOD(QColorWrap::Red) {
+  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->red()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->red()));
 }
 
-Handle<Value> QColorWrap::Green(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
+NAN_METHOD(QColorWrap::Green) {
+  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->green()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->green()));
 }
 
-Handle<Value> QColorWrap::Blue(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
+NAN_METHOD(QColorWrap::Blue) {
+  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->blue()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->blue()));
 }
 
-Handle<Value> QColorWrap::Alpha(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
+NAN_METHOD(QColorWrap::Alpha) {
+  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->alpha()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->alpha()));
 }
 
-Handle<Value> QColorWrap::Name(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(args.This());
+NAN_METHOD(QColorWrap::Name) {
+  QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
   QString name = q->name();
 
-  return scope.Close(qt_v8::FromQString(name));
+  info.GetReturnValue().Set(qt_v8::FromQString(name));
 }

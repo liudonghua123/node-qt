@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QAPPLICATIONWRAP_H
-#define QAPPLICATIONWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QApplication>
 
 class QApplicationWrap : public node::ObjectWrap {
@@ -41,17 +42,15 @@ class QApplicationWrap : public node::ObjectWrap {
  private:
   QApplicationWrap();
   ~QApplicationWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> ProcessEvents(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Exec(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(ProcessEvents);
+  static NAN_METHOD(Exec);
 
   // Wrapped object
   QApplication* q_;
   static int argc_;
   static char** argv_;
 };
-
-#endif

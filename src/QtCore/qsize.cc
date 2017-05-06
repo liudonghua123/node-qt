@@ -52,8 +52,9 @@ NAN_MODULE_INIT(QSizeWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "width", Width);
   Nan::SetPrototypeMethod(tpl, "height", Height);
   
-  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-  Nan::Set(target, Nan::New("QSize").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QSize").ToLocalChecked(), constructorFunction);
 }
 
 NAN_METHOD(QSizeWrap::New) {

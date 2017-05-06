@@ -27,22 +27,20 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QTV8_H
-#define QTV8_H
+#pragma once
 
 #include <node.h>
+#include <nan.h>
 #include <QString>
 
 namespace qt_v8 {
 
 inline QString ToQString(v8::Local<v8::String> str) {
-  return QString::fromUtf16( *v8::String::Value(str) );
+  return QString::fromUtf16(*v8::String::Value(str));
 }
 
 inline v8::Local<v8::String> FromQString(QString str) {
-  return v8::String::New( str.utf16() );
+  return Nan::New<v8::String>(str.utf16()).ToLocalChecked();
 }
 
 } // namespace
-
-#endif

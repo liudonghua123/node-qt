@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QMOUSEEVENTWRAP_H
-#define QMOUSEEVENTWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QMouseEvent>
 
 class QMouseEventWrap : public node::ObjectWrap {
@@ -46,16 +47,14 @@ class QMouseEventWrap : public node::ObjectWrap {
  private:
   QMouseEventWrap();
   ~QMouseEventWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> X(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Y(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Button(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(X);
+  static NAN_METHOD(Y);
+  static NAN_METHOD(Button);
 
   // Wrapped object
   QMouseEvent* q_;
 };
-
-#endif

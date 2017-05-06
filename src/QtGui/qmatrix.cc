@@ -27,46 +27,44 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qmatrix.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QMatrixWrap::constructor;
+Nan::Persistent<Function> QMatrixWrap::constructor;
 
 // Supported implementations:
 //   QMatrix ( )
 //   QMatrix ( qreal m11, qreal m12, qreal m21, qreal m22, qreal dx, qreal dy )
 //   QMatrix ( QMatrix matrix )
-QMatrixWrap::QMatrixWrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
-  if (args.Length() == 0) {
+QMatrixWrap::QMatrixWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
+  if (info.Length() == 0) {
     // QMatrix ( )
 
     q_ = new QMatrix;
-  } else if (args[0]->IsObject()) {
+  } else if (info[0]->IsObject()) {
     // QMatrix ( QMatrix matrix )
 
     QString arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
 
     if (arg0_constructor != "QMatrix")
-      ThrowException(Exception::TypeError(
-        String::New("QMatrix::QMatrix: bad argument")));
+      Nan::ThrowError(Exception::TypeError(
+        Nan::New<String>("QMatrix::QMatrix: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QMatrixWrap* q_wrap = ObjectWrap::Unwrap<QMatrixWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QMatrix* q = q_wrap->GetWrapped();
 
     q_ = new QMatrix(*q);
-  } else if (args.Length() == 6) {
+  } else if (info.Length() == 6) {
     // QMatrix(qreal m11, qreal m12, qreal m21, qreal m22, qreal dx, qreal dy)
 
-    q_ = new QMatrix(args[0]->NumberValue(), args[1]->NumberValue(),
-                     args[2]->NumberValue(), args[3]->NumberValue(),
-                     args[4]->NumberValue(), args[5]->NumberValue());
+    q_ = new QMatrix(info[0]->NumberValue(), info[1]->NumberValue(),
+                     info[2]->NumberValue(), info[3]->NumberValue(),
+                     info[4]->NumberValue(), info[5]->NumberValue());
   }
 }
 
@@ -76,123 +74,96 @@ QMatrixWrap::~QMatrixWrap() {
 
 void QMatrixWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QMatrix").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("m11").ToLocalChecked(),
-      FunctionTemplate::New(M11)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("m12").ToLocalChecked(),
-      FunctionTemplate::New(M12)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("m21").ToLocalChecked(),
-      FunctionTemplate::New(M21)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("m22").ToLocalChecked(),
-      FunctionTemplate::New(M22)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("dx").ToLocalChecked(),
-      FunctionTemplate::New(Dx)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("dy").ToLocalChecked(),
-      FunctionTemplate::New(Dy)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("translate").ToLocalChecked(),
-      FunctionTemplate::New(Translate)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("scale").ToLocalChecked(),
-      FunctionTemplate::New(Scale)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "m11", M11);
+  Nan::SetPrototypeMethod(tpl, "m12", M12);
+  Nan::SetPrototypeMethod(tpl, "m21", M21);
+  Nan::SetPrototypeMethod(tpl, "m22", M22);
+  Nan::SetPrototypeMethod(tpl, "dx", Dx);
+  Nan::SetPrototypeMethod(tpl, "dy", Dy);
+  Nan::SetPrototypeMethod(tpl, "translate", Translate);
+  Nan::SetPrototypeMethod(tpl, "scale", Scale);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QMatrix").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QMatrix").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QMatrixWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = new QMatrixWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QMatrixWrap::New) {
+  QMatrixWrap* w = new QMatrixWrap(info);
+  w->Wrap(info.This());
 }
 
 Handle<Value> QMatrixWrap::NewInstance(QMatrix q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QMatrixWrap* w = node::ObjectWrap::Unwrap<QMatrixWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QMatrixWrap::M11(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::M11) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->m11()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->m11()));
 }
 
-Handle<Value> QMatrixWrap::M12(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::M12) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->m12()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->m12()));
 }
 
-Handle<Value> QMatrixWrap::M21(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::M21) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->m21()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->m21()));
 }
 
-Handle<Value> QMatrixWrap::M22(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::M22) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->m22()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->m22()));
 }
 
-Handle<Value> QMatrixWrap::Dx(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::Dx) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->dx()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->dx()));
 }
 
-Handle<Value> QMatrixWrap::Dy(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::Dy) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->dy()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->dy()));
 }
 
-Handle<Value> QMatrixWrap::Translate(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::Translate) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  q->translate(args[0]->NumberValue(), args[1]->NumberValue());
+  q->translate(info[0]->NumberValue(), info[1]->NumberValue());
 
-  return scope.Close(args.This());
+  info.GetReturnValue().Set(info.This());
 }
 
-Handle<Value> QMatrixWrap::Scale(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(args.This());
+NAN_METHOD(QMatrixWrap::Scale) {
+  QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  q->scale(args[0]->NumberValue(), args[1]->NumberValue());
+  q->scale(info[0]->NumberValue(), info[1]->NumberValue());
 
-  return scope.Close(args.This());
+  info.GetReturnValue().Set(info.This());
 }

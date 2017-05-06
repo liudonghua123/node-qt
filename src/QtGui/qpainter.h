@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QPAINTERWRAP_H
-#define QPAINTERWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QPainter>
 
 class QPainterWrap : public node::ObjectWrap {
@@ -41,33 +42,31 @@ class QPainterWrap : public node::ObjectWrap {
  private:
   QPainterWrap();
   ~QPainterWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   //
   // Wrapped methods exposed to JS
   //
 
-  static v8::Handle<v8::Value> Begin(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> End(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> IsActive(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Save(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Restore(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Begin);
+  static NAN_METHOD(End);
+  static NAN_METHOD(IsActive);
+  static NAN_METHOD(Save);
+  static NAN_METHOD(Restore);
 
   // State
-  static v8::Handle<v8::Value> SetPen(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetFont(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetMatrix(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(SetPen);
+  static NAN_METHOD(SetFont);
+  static NAN_METHOD(SetMatrix);
 
   // Paint actions
-  static v8::Handle<v8::Value> FillRect(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> DrawText(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> DrawPixmap(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> DrawImage(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> StrokePath(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(FillRect);
+  static NAN_METHOD(DrawText);
+  static NAN_METHOD(DrawPixmap);
+  static NAN_METHOD(DrawImage);
+  static NAN_METHOD(StrokePath);
 
   // Wrapped object
   QPainter* q_;
 };
-
-#endif

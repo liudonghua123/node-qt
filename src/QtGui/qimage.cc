@@ -27,27 +27,25 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qimage.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QImageWrap::constructor;
+Nan::Persistent<Function> QImageWrap::constructor;
 
 // Supported implementations:
 //   QImage ( )
 //   QImage ( QString filename )
-QImageWrap::QImageWrap(const FunctionCallbackInfo<Value>& args) {
-  if (args[0]->IsString()) {
+QImageWrap::QImageWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
+  if (info[0]->IsString()) {
     // QImage ( QString filename ) 
-    q_ = new QImage(qt_v8::ToQString(args[0]->ToString()));
+    q_ = new QImage(qt_v8::ToQString(info[0]->ToString()));
     return;
   }
 
   // QImage ( )
-  q_ = new QImage(qt_v8::ToQString(args[0]->ToString()));  
+  q_ = new QImage(qt_v8::ToQString(info[0]->ToString()));  
 }
 
 QImageWrap::~QImageWrap() {
@@ -56,32 +54,26 @@ QImageWrap::~QImageWrap() {
 
 void QImageWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QImage").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("isNull").ToLocalChecked(),
-      FunctionTemplate::New(IsNull)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "isNull", IsNull);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QImage").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QImage").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QImageWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QImageWrap* w = new QImageWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QImageWrap::New) {
+  QImageWrap* w = new QImageWrap(info);
+  w->Wrap(info.This());
 }
 
-Handle<Value> QImageWrap::IsNull(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QImageWrap* w = ObjectWrap::Unwrap<QImageWrap>(args.This());
+NAN_METHOD(QImageWrap::IsNull) {
+  QImageWrap* w = ObjectWrap::Unwrap<QImageWrap>(info.This());
   QImage* q = w->GetWrapped();
 
-  return scope.Close(Boolean::New(q->isNull()));
+  info.GetReturnValue().Set(Nan::New<Boolean>(q->isNull()));
 }

@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QMATRIXWRAP_H
-#define QMATRIXWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QMatrix>
 
 class QMatrixWrap : public node::ObjectWrap {
@@ -44,23 +45,21 @@ class QMatrixWrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(QMatrix q);
 
  private:
-  QMatrixWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QMatrixWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QMatrixWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> M11(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> M12(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> M21(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> M22(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Dx(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Dy(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Translate(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Scale(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(M11);
+  static NAN_METHOD(M12);
+  static NAN_METHOD(M21);
+  static NAN_METHOD(M22);
+  static NAN_METHOD(Dx);
+  static NAN_METHOD(Dy);
+  static NAN_METHOD(Translate);
+  static NAN_METHOD(Scale);
 
   // Wrapped object
   QMatrix* q_;
 };
-
-#endif

@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QCOLORWRAP_H
-#define QCOLORWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QColor>
 
 class QColorWrap : public node::ObjectWrap {
@@ -39,20 +40,18 @@ class QColorWrap : public node::ObjectWrap {
   QColor* GetWrapped() const { return q_; };
 
  private:
-  QColorWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QColorWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QColorWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Red(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Green(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Blue(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Alpha(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Name(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Red);
+  static NAN_METHOD(Green);
+  static NAN_METHOD(Blue);
+  static NAN_METHOD(Alpha);
+  static NAN_METHOD(Name);
 
   // Wrapped object
   QColor* q_;
 };
-
-#endif

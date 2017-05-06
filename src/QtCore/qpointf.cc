@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qpointf.h"
 
 using namespace v8;
@@ -37,9 +35,9 @@ Nan::Persistent<Function> QPointFWrap::constructor;
 
 // Supported implementations:
 //   QPointF (qreal x, qreal y)
-QPointFWrap::QPointFWrap(const Nan::FunctionCallbackInfo<Value>& args) : q_(NULL) {
-  if (args[0]->IsNumber() && args[1]->IsNumber()) {
-    q_ = new QPointF(args[0]->NumberValue(), args[1]->NumberValue());
+QPointFWrap::QPointFWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
+  if (info[0]->IsNumber() && info[1]->IsNumber()) {
+    q_ = new QPointF(info[0]->NumberValue(), info[1]->NumberValue());
   } else {
     q_ = new QPointF;
   }
@@ -60,8 +58,9 @@ NAN_MODULE_INIT(QPointFWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "y", Y);
   Nan::SetPrototypeMethod(tpl, "isNull", IsNull);
   
-  constructor.Reset(Nan::GetFunction(tpl).ToLocalChecked());
-  Nan::Set(target, Nan::New("QPointF").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QPointF").ToLocalChecked(), constructorFunction);
 }
 
 NAN_METHOD(QPointFWrap::New) {

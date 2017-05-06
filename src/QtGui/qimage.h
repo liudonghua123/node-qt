@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QIMAGEWRAP_H
-#define QIMAGEWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QImage>
 
 class QImageWrap : public node::ObjectWrap {
@@ -39,16 +40,14 @@ class QImageWrap : public node::ObjectWrap {
   QImage* GetWrapped() const { return q_; };
 
  private:
-  QImageWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QImageWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QImageWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> IsNull(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(IsNull);
 
   // Wrapped object
   QImage* q_;
 };
-
-#endif

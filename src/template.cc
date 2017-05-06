@@ -27,17 +27,15 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "__template__.h"
 
 using namespace v8;
 
-Persistent<Function> __Template__Wrap::constructor;
+Nan::Persistent<Function> __Template__Wrap::constructor;
 
 // Supported implementations:
 //   __Template__ ( ??? )
-__Template__Wrap::__Template__Wrap(const FunctionCallbackInfo<Value>& args) : q_(NULL) {
+__Template__Wrap::__Template__Wrap(NAN_METHOD_ARGS_TYPE args) : q_(NULL) {
   q_ = new __Template__;
 }
 
@@ -47,44 +45,38 @@ __Template__Wrap::~__Template__Wrap() {
 
 void __Template__Wrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("__Template__").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("example").ToLocalChecked(),
-      FunctionTemplate::New(Example)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "example", Example);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("__Template__").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("__Template__").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> __Template__Wrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  __Template__Wrap* w = new __Template__Wrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+Handle<Value> __Template__Wrap::New(Nan::NAN_METHOD_ARGS_TYPE info) {
+  __Template__Wrap* w = new __Template__Wrap(info);
+  w->Wrap(info.This());
 }
 
 Handle<Value> __Template__Wrap::NewInstance(__Template__ q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   __Template__Wrap* w = node::ObjectWrap::Unwrap<__Template__Wrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> __Template__Wrap::Example(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  __Template__Wrap* w = ObjectWrap::Unwrap<__Template__Wrap>(args.This());
+Handle<Value> __Template__Wrap::Example(NAN_METHOD_ARGS_TYPE args) {
+  __Template__Wrap* w = ObjectWrap::Unwrap<__Template__Wrap>(info.This());
   __Template__* q = w->GetWrapped();
 
   // q->...?
 
-  return scope.Close(Undefined());
+  info.GetReturnValue().Set(Nan::Undefined());
 }

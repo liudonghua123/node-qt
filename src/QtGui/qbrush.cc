@@ -27,19 +27,17 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qbrush.h"
 
 using namespace v8;
 
-Persistent<Function> QBrushWrap::constructor;
+Nan::Persistent<Function> QBrushWrap::constructor;
 
 // Supported constructors
 // QBrush(Qt::GlobalColor)  
-QBrushWrap::QBrushWrap(const FunctionCallbackInfo<Value>& args) {
-  if (args.Length() > 0) {
-    q_ = new QBrush((Qt::GlobalColor)args[0]->IntegerValue());
+QBrushWrap::QBrushWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
+  if (info.Length() > 0) {
+    q_ = new QBrush((Qt::GlobalColor)info[0]->IntegerValue());
   } else {
     // QBrush()
     q_ = new QBrush();
@@ -52,21 +50,18 @@ QBrushWrap::~QBrushWrap() {
 
 void QBrushWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QBrush").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QBrush").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QBrush").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QBrushWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QBrushWrap* w = new QBrushWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QBrushWrap::New) {
+  QBrushWrap* w = new QBrushWrap(info);
+  w->Wrap(info.This());
 }

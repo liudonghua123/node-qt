@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QFONTWRAP_H
-#define QFONTWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QFont>
 
 class QFontWrap : public node::ObjectWrap {
@@ -44,23 +45,21 @@ class QFontWrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(QFont q);
 
  private:
-  QFontWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QFontWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QFontWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> SetFamily(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Family(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetPixelSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> PixelSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetPointSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> PointSize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetPointSizeF(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> PointSizeF(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(SetFamily);
+  static NAN_METHOD(Family);
+  static NAN_METHOD(SetPixelSize);
+  static NAN_METHOD(PixelSize);
+  static NAN_METHOD(SetPointSize);
+  static NAN_METHOD(PointSize);
+  static NAN_METHOD(SetPointSizeF);
+  static NAN_METHOD(PointSizeF);
 
   // Wrapped object
   QFont* q_;
 };
-
-#endif

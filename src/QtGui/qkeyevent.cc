@@ -27,14 +27,12 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qkeyevent.h"
 #include "../qt_v8.h"
 
 using namespace v8;
 
-Persistent<Function> QKeyEventWrap::constructor;
+Nan::Persistent<Function> QKeyEventWrap::constructor;
 
 QKeyEventWrap::QKeyEventWrap() : q_(NULL) {
   // Standalone constructor not implemented
@@ -47,52 +45,43 @@ QKeyEventWrap::~QKeyEventWrap() {
 
 void QKeyEventWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QKeyEvent").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  tpl->PrototypeTemplate()->Set(Nan::New("key").ToLocalChecked(),
-      FunctionTemplate::New(Key)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("text").ToLocalChecked(),
-      FunctionTemplate::New(Text)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "key", Key);
+  Nan::SetPrototypeMethod(tpl, "text", Text);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QKeyEvent").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QKeyEvent").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QKeyEventWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
+NAN_METHOD(QKeyEventWrap::New) {
   QKeyEventWrap* w = new QKeyEventWrap;
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
 Handle<Value> QKeyEventWrap::NewInstance(QKeyEvent q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QKeyEventWrap::Key(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(args.This());
+NAN_METHOD(QKeyEventWrap::Key) {
+  QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(info.This());
   QKeyEvent* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->key()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->key()));
 }
 
-Handle<Value> QKeyEventWrap::Text(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(args.This());
+NAN_METHOD(QKeyEventWrap::Text) {
+  QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(info.This());
   QKeyEvent* q = w->GetWrapped();
 
-  return scope.Close(qt_v8::FromQString(q->text()));
+  info.GetReturnValue().Set(qt_v8::FromQString(q->text()));
 }

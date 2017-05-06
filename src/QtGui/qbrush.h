@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QBRUSHWRAP_H
-#define QBRUSHWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QBrush>
 
 class QBrushWrap : public node::ObjectWrap {
@@ -39,15 +40,13 @@ class QBrushWrap : public node::ObjectWrap {
   QBrush* GetWrapped() const { return q_; };
 
  private:
-  QBrushWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QBrushWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QBrushWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
 
   // Wrapped object
   QBrush* q_;
 };
-
-#endif

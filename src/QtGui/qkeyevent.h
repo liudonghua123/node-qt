@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QKEYEVENTWRAP_H
-#define QKEYEVENTWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QKeyEvent>
 
 class QKeyEventWrap : public node::ObjectWrap {
@@ -46,15 +47,13 @@ class QKeyEventWrap : public node::ObjectWrap {
  private:
   QKeyEventWrap();
   ~QKeyEventWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Key(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Text(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Key);
+  static NAN_METHOD(Text);
 
   // Wrapped object
   QKeyEvent* q_;
 };
-
-#endif

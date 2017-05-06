@@ -27,10 +27,10 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QWIDGETWRAP_H
-#define QWIDGETWRAP_H
+#pragma once
 
 #include <node.h>
+#include <nan.h>
 #include <QWidget>
 
 //
@@ -41,12 +41,12 @@ class QWidgetImpl : public QWidget {
  public:
   QWidgetImpl(QWidgetImpl* parent);
   ~QWidgetImpl();  
-  v8::Persistent<v8::Value> paintEventCallback_;
-  v8::Persistent<v8::Value> mousePressCallback_;
-  v8::Persistent<v8::Value> mouseReleaseCallback_;
-  v8::Persistent<v8::Value> mouseMoveCallback_;
-  v8::Persistent<v8::Value> keyPressCallback_;
-  v8::Persistent<v8::Value> keyReleaseCallback_;
+  Nan::Persistent<v8::Function> paintEventCallback_;
+  Nan::Persistent<v8::Function> mousePressCallback_;
+  Nan::Persistent<v8::Function> mouseReleaseCallback_;
+  Nan::Persistent<v8::Function> mouseMoveCallback_;
+  Nan::Persistent<v8::Function> keyPressCallback_;
+  Nan::Persistent<v8::Function> keyReleaseCallback_;
 
  private:
   void paintEvent(QPaintEvent* e);
@@ -68,40 +68,38 @@ class QWidgetWrap : public node::ObjectWrap {
  private:
   QWidgetWrap(QWidgetImpl* parent);
   ~QWidgetWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Resize(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Show(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Close(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Size(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Width(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Height(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> ObjectName(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetObjectName(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Parent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Update(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetMouseTracking(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> HasMouseTracking(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetFocusPolicy(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Move(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> X(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> Y(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Resize);
+  static NAN_METHOD(Show);
+  static NAN_METHOD(Close);
+  static NAN_METHOD(Size);
+  static NAN_METHOD(Width);
+  static NAN_METHOD(Height);
+  static NAN_METHOD(ObjectName);
+  static NAN_METHOD(SetObjectName);
+  static NAN_METHOD(Parent);
+  static NAN_METHOD(Update);
+  static NAN_METHOD(SetMouseTracking);
+  static NAN_METHOD(HasMouseTracking);
+  static NAN_METHOD(SetFocusPolicy);
+  static NAN_METHOD(Move);
+  static NAN_METHOD(X);
+  static NAN_METHOD(Y);
 
   // QUIRK
   // Event binding. These functions bind implemented event handlers above
   // to the given callbacks. This is necessary as in Qt such handlers
   // are virtual and we can't dynamically implement them from JS
-  static v8::Handle<v8::Value> PaintEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> MousePressEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> MouseReleaseEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> MouseMoveEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> KeyPressEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> KeyReleaseEvent(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(PaintEvent);
+  static NAN_METHOD(MousePressEvent);
+  static NAN_METHOD(MouseReleaseEvent);
+  static NAN_METHOD(MouseMoveEvent);
+  static NAN_METHOD(KeyPressEvent);
+  static NAN_METHOD(KeyReleaseEvent);
 
   // Wrapped object
   QWidgetImpl* q_;
 };
-
-#endif

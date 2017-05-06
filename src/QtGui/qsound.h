@@ -27,10 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef QSOUNDWRAP_H
-#define QSOUNDWRAP_H
+#pragma once
 
 #include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
 #include <QSound>
 
 class QSoundWrap : public node::ObjectWrap {
@@ -39,18 +40,16 @@ class QSoundWrap : public node::ObjectWrap {
   QSound* GetWrapped() const { return q_; };
 
  private:
-  QSoundWrap(const v8::FunctionCallbackInfo<v8::Value>& args);
+  QSoundWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QSoundWrap();
-  static v8::Persistent<v8::Function> constructor;
-  static v8::Handle<v8::Value> New(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
   // Wrapped methods
-  static v8::Handle<v8::Value> Play(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> FileName(const v8::FunctionCallbackInfo<v8::Value>& args);
-  static v8::Handle<v8::Value> SetLoops(const v8::FunctionCallbackInfo<v8::Value>& args);
+  static NAN_METHOD(Play);
+  static NAN_METHOD(FileName);
+  static NAN_METHOD(SetLoops);
 
   // Wrapped object
   QSound* q_;
 };
-
-#endif

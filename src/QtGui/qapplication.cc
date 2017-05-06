@@ -27,13 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qapplication.h"
 
 using namespace v8;
 
-Persistent<Function> QApplicationWrap::constructor;
+Nan::Persistent<Function> QApplicationWrap::constructor;
 
 int QApplicationWrap::argc_ = 0;
 char** QApplicationWrap::argv_ = NULL;
@@ -48,48 +46,40 @@ QApplicationWrap::~QApplicationWrap() {
 
 void QApplicationWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QApplication").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
-
+  
   // Prototype
-  tpl->PrototypeTemplate()->Set(Nan::New("processEvents").ToLocalChecked(),
-      FunctionTemplate::New(ProcessEvents)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("exec").ToLocalChecked(),
-      FunctionTemplate::New(Exec)->GetFunction());
-
-  constructor = Persistent<Function>::New(
-      tpl->GetFunction());
-  target->Set(Nan::New("QApplication").ToLocalChecked(), constructor);
+  Nan::SetPrototypeMethod(tpl, "processEvents", ProcessEvents);
+  Nan::SetPrototypeMethod(tpl, "exec", Exec);
+  
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QApplication").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QApplicationWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
+NAN_METHOD(QApplicationWrap::New) {
+  Nan::HandleScope scope;
+  
   QApplicationWrap* w = new QApplicationWrap();
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
-Handle<Value> QApplicationWrap::ProcessEvents(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(args.This());
+NAN_METHOD(QApplicationWrap::ProcessEvents) {
+  QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(info.This());
   QApplication* q = w->GetWrapped();
-
+  
   q->processEvents();
-
-  return scope.Close(Undefined());
+  
+  info.GetReturnValue().Set(Nan::Undefined());
 }
 
-Handle<Value> QApplicationWrap::Exec(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(args.This());
+NAN_METHOD(QApplicationWrap::Exec) {
+  QApplicationWrap* w = ObjectWrap::Unwrap<QApplicationWrap>(info.This());
   QApplication* q = w->GetWrapped();
-
+  
   q->exec();
-
-  return scope.Close(Undefined());
+  
+  info.GetReturnValue().Set(Nan::Undefined());
 }

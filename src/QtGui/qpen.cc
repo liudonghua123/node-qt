@@ -27,8 +27,6 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "../qt_v8.h"
 #include "qpen.h"
 #include "qbrush.h"
@@ -36,20 +34,20 @@
 
 using namespace v8;
 
-Persistent<Function> QPenWrap::constructor;
+Nan::Persistent<Function> QPenWrap::constructor;
 
 // Supported implementations:
 //   QPen (QBrush brush, qreal width, Qt::PenStyle style = Qt::SolidLine, Qt::PenCapStyle cap = Qt::SquareCap, Qt::PenJoinStyle join = Qt::BevelJoin )
 //   QPen (QColor color)
 //   QPen ()
-QPenWrap::QPenWrap(const FunctionCallbackInfo<Value>& args) {
+QPenWrap::QPenWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
   QString arg0_constructor;
-  if (args[0]->IsObject()) {
+  if (info[0]->IsObject()) {
     arg0_constructor = 
-        qt_v8::ToQString(args[0]->ToObject()->GetConstructorName());
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
   }
 
-  if (!args[0]->IsObject()) {
+  if (!info[0]->IsObject()) {
     // QPen ()
   
     q_ = new QPen();
@@ -61,7 +59,7 @@ QPenWrap::QPenWrap(const FunctionCallbackInfo<Value>& args) {
 
     // Unwrap QColor
     QColorWrap* color_wrap = ObjectWrap::Unwrap<QColorWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QColor* color = color_wrap->GetWrapped();
 
     q_ = new QPen(*color);
@@ -71,35 +69,35 @@ QPenWrap::QPenWrap(const FunctionCallbackInfo<Value>& args) {
     
     // Unwrap QBrush
     QBrushWrap* brush_wrap = ObjectWrap::Unwrap<QBrushWrap>(
-        args[0]->ToObject());
+        info[0]->ToObject());
     QBrush* brush = brush_wrap->GetWrapped();
 
-    qreal width(args[1]->NumberValue());
+    qreal width(info[1]->NumberValue());
 
-    if (args.Length() == 2) {
+    if (info.Length() == 2) {
       q_ = new QPen(*brush, width);
       return;
     }
 
-    if (args.Length() == 3) {
-      Qt::PenStyle style((Qt::PenStyle)args[2]->IntegerValue());
+    if (info.Length() == 3) {
+      Qt::PenStyle style((Qt::PenStyle)info[2]->IntegerValue());
 
       q_ = new QPen(*brush, width, style);
       return;
     }
 
-    if (args.Length() == 4) {
-      Qt::PenStyle style((Qt::PenStyle)args[2]->IntegerValue());
-      Qt::PenCapStyle cap((Qt::PenCapStyle)args[3]->IntegerValue());
+    if (info.Length() == 4) {
+      Qt::PenStyle style((Qt::PenStyle)info[2]->IntegerValue());
+      Qt::PenCapStyle cap((Qt::PenCapStyle)info[3]->IntegerValue());
 
       q_ = new QPen(*brush, width, style, cap);
       return;
     }
 
-    if (args.Length() == 5) {
-      Qt::PenStyle style((Qt::PenStyle)args[2]->IntegerValue());
-      Qt::PenCapStyle cap((Qt::PenCapStyle)args[3]->IntegerValue());
-      Qt::PenJoinStyle join((Qt::PenJoinStyle)args[4]->IntegerValue());
+    if (info.Length() == 5) {
+      Qt::PenStyle style((Qt::PenStyle)info[2]->IntegerValue());
+      Qt::PenCapStyle cap((Qt::PenCapStyle)info[3]->IntegerValue());
+      Qt::PenJoinStyle join((Qt::PenJoinStyle)info[4]->IntegerValue());
 
       q_ = new QPen(*brush, width, style, cap, join);
       return;
@@ -113,19 +111,16 @@ QPenWrap::~QPenWrap() {
 
 void QPenWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPen").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QPen").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QPen").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QPenWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QPenWrap* w = new QPenWrap(args);
-  w->Wrap(args.This());
-
-  return args.This();
+NAN_METHOD(QPenWrap::New) {
+  QPenWrap* w = new QPenWrap(info);
+  w->Wrap(info.This());
 }

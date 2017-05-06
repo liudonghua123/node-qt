@@ -27,13 +27,11 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include <node.h>
-#include <nan.h>
 #include "qmouseevent.h"
 
 using namespace v8;
 
-Persistent<Function> QMouseEventWrap::constructor;
+Nan::Persistent<Function> QMouseEventWrap::constructor;
 
 QMouseEventWrap::QMouseEventWrap() : q_(NULL) {
   // Standalone constructor not implemented
@@ -46,63 +44,51 @@ QMouseEventWrap::~QMouseEventWrap() {
 
 void QMouseEventWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
-  Local<FunctionTemplate> tpl = FunctionTemplate::New(New);
+  Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QMouseEvent").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  tpl->PrototypeTemplate()->Set(Nan::New("x").ToLocalChecked(),
-      FunctionTemplate::New(X)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("y").ToLocalChecked(),
-      FunctionTemplate::New(Y)->GetFunction());
-  tpl->PrototypeTemplate()->Set(Nan::New("button").ToLocalChecked(),
-      FunctionTemplate::New(Button)->GetFunction());
+  Nan::SetPrototypeMethod(tpl, "x", X);
+  Nan::SetPrototypeMethod(tpl, "y", Y);
+  Nan::SetPrototypeMethod(tpl, "button", Button);
 
-  constructor = Persistent<Function>::New(tpl->GetFunction());
-  target->Set(Nan::New("QMouseEvent").ToLocalChecked(), constructor);
+  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(constructorFunction);
+  Nan::Set(target, Nan::New("QMouseEvent").ToLocalChecked(), constructorFunction);
 }
 
-Handle<Value> QMouseEventWrap::New(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
+NAN_METHOD(QMouseEventWrap::New) {
   QMouseEventWrap* w = new QMouseEventWrap();
-  w->Wrap(args.This());
-
-  return args.This();
+  w->Wrap(info.This());
 }
 
 Handle<Value> QMouseEventWrap::NewInstance(QMouseEvent q) {
-  HandleScope scope;
+  Nan::EscapableHandleScope scope;
   
-  Local<Object> instance = constructor->NewInstance(0, NULL);
+  Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(instance);
   w->SetWrapped(q);
 
-  return scope.Close(instance);
+  return scope.Escape(instance);
 }
 
-Handle<Value> QMouseEventWrap::X(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());
+NAN_METHOD(QMouseEventWrap::X) {
+  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->x()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->x()));
 }
 
-Handle<Value> QMouseEventWrap::Y(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());
+NAN_METHOD(QMouseEventWrap::Y) {
+  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->y()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->y()));
 }
 
-Handle<Value> QMouseEventWrap::Button(const FunctionCallbackInfo<Value>& args) {
-  HandleScope scope;
-
-  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(args.This());
+NAN_METHOD(QMouseEventWrap::Button) {
+  QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  return scope.Close(Number::New(q->button()));
+  info.GetReturnValue().Set(Nan::New<Number>(q->button()));
 }
