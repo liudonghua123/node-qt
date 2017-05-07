@@ -54,8 +54,9 @@ QWidgetImpl::~QWidgetImpl() {
 }
 
 void QWidgetImpl::paintEvent(QPaintEvent* e) {
-  if (!paintEventCallback_.IsEmpty())
+  if (paintEventCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 0;
   Handle<Value> argv[1] = {};
@@ -66,8 +67,9 @@ void QWidgetImpl::paintEvent(QPaintEvent* e) {
 void QWidgetImpl::mousePressEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  if (!mousePressCallback_.IsEmpty())
+  if (mousePressCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
@@ -80,8 +82,9 @@ void QWidgetImpl::mousePressEvent(QMouseEvent* e) {
 void QWidgetImpl::mouseReleaseEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  if (!mouseReleaseCallback_.IsEmpty())
+  if (mouseReleaseCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
@@ -94,8 +97,9 @@ void QWidgetImpl::mouseReleaseEvent(QMouseEvent* e) {
 void QWidgetImpl::mouseMoveEvent(QMouseEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  if (!mouseMoveCallback_.IsEmpty())
+  if (mouseMoveCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
@@ -108,8 +112,9 @@ void QWidgetImpl::mouseMoveEvent(QMouseEvent* e) {
 void QWidgetImpl::keyPressEvent(QKeyEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  if (!keyPressCallback_.IsEmpty())
+  if (keyPressCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
@@ -122,8 +127,9 @@ void QWidgetImpl::keyPressEvent(QKeyEvent* e) {
 void QWidgetImpl::keyReleaseEvent(QKeyEvent* e) {
   e->ignore(); // ensures event bubbles up
 
-  if (!keyReleaseCallback_.IsEmpty())
+  if (keyReleaseCallback_.IsEmpty()) {
     return;
+  }
 
   const unsigned argc = 1;
   Handle<Value> argv[argc] = {
