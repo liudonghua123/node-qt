@@ -58,8 +58,6 @@ NAN_MODULE_INIT(QSizeWrap::Initialize) {
 }
 
 NAN_METHOD(QSizeWrap::New) {
-  Nan::HandleScope scope;
-
   QSizeWrap* w = new QSizeWrap();
   w->Wrap(info.This());
 }
@@ -78,12 +76,12 @@ NAN_METHOD(QSizeWrap::Width) {
   QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(info.This());
   QSize* q = w->GetWrapped();
   
-  info.GetReturnValue().Set(Nan::New<Number>(q->width()));
+  info.GetReturnValue().Set(Nan::New(q->width()));
 }
 
 NAN_METHOD(QSizeWrap::Height) {
   QSizeWrap* w = ObjectWrap::Unwrap<QSizeWrap>(info.This());
   QSize* q = w->GetWrapped();
   
-  info.GetReturnValue().Set(Nan::New<Number>(q->height()));
+  info.GetReturnValue().Set(Nan::New(q->height()));
 }

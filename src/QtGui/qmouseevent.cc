@@ -76,19 +76,19 @@ NAN_METHOD(QMouseEventWrap::X) {
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->x()));
+  info.GetReturnValue().Set(Nan::New(q->x()));
 }
 
 NAN_METHOD(QMouseEventWrap::Y) {
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->y()));
+  info.GetReturnValue().Set(Nan::New(q->y()));
 }
 
 NAN_METHOD(QMouseEventWrap::Button) {
   QMouseEventWrap* w = node::ObjectWrap::Unwrap<QMouseEventWrap>(info.This());
   QMouseEvent* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->button()));
+  info.GetReturnValue().Set(Nan::New(q->button()));
 }

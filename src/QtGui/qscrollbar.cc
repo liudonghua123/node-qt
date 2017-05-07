@@ -75,7 +75,7 @@ NAN_METHOD(QScrollBarWrap::Value) {
   QScrollBarWrap* w = ObjectWrap::Unwrap<QScrollBarWrap>(info.This());
   QScrollBar* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->value()));
+  info.GetReturnValue().Set(Nan::New(q->value()));
 }
 
 NAN_METHOD(QScrollBarWrap::SetValue) {

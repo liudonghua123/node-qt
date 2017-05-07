@@ -64,8 +64,6 @@ NAN_MODULE_INIT(QPointFWrap::Initialize) {
 }
 
 NAN_METHOD(QPointFWrap::New) {
-  Nan::HandleScope scope;
-  
   QPointFWrap* w = new QPointFWrap(info);
   w->Wrap(info.This());
 }
@@ -84,19 +82,19 @@ NAN_METHOD(QPointFWrap::X) {
   QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
   
-  info.GetReturnValue().Set(Nan::New<Number>(q->x()));
+  info.GetReturnValue().Set(Nan::New(q->x()));
 }
 
 NAN_METHOD(QPointFWrap::Y) {
   QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
   
-  info.GetReturnValue().Set(Nan::New<Number>(q->y()));
+  info.GetReturnValue().Set(Nan::New(q->y()));
 }
 
 NAN_METHOD(QPointFWrap::IsNull) {
   QPointFWrap* w = ObjectWrap::Unwrap<QPointFWrap>(info.This());
   QPointF* q = w->GetWrapped();
   
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->isNull()));
+  info.GetReturnValue().Set(Nan::New(q->isNull()));
 }

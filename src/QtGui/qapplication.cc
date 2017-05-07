@@ -60,8 +60,6 @@ void QApplicationWrap::Initialize(Handle<Object> target) {
 }
 
 NAN_METHOD(QApplicationWrap::New) {
-  Nan::HandleScope scope;
-  
   QApplicationWrap* w = new QApplicationWrap();
   w->Wrap(info.This());
 }

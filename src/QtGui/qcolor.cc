@@ -57,7 +57,7 @@ QColorWrap::QColorWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
 
     if (arg0_constructor != "QColor")
       Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QColor::QColor: bad argument").ToLocalChecked()));
+        Nan::New("QColor::QColor: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QColorWrap* q_wrap = ObjectWrap::Unwrap<QColorWrap>(
@@ -99,28 +99,28 @@ NAN_METHOD(QColorWrap::Red) {
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->red()));
+  info.GetReturnValue().Set(Nan::New(q->red()));
 }
 
 NAN_METHOD(QColorWrap::Green) {
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->green()));
+  info.GetReturnValue().Set(Nan::New(q->green()));
 }
 
 NAN_METHOD(QColorWrap::Blue) {
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->blue()));
+  info.GetReturnValue().Set(Nan::New(q->blue()));
 }
 
 NAN_METHOD(QColorWrap::Alpha) {
   QColorWrap* w = ObjectWrap::Unwrap<QColorWrap>(info.This());
   QColor* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->alpha()));
+  info.GetReturnValue().Set(Nan::New(q->alpha()));
 }
 
 NAN_METHOD(QColorWrap::Name) {

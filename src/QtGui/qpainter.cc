@@ -79,7 +79,7 @@ void QPainterWrap::Initialize(Handle<Object> target) {
 NAN_METHOD(QPainterWrap::New) {
   if (info.Length()>0) {
     return Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QPainterWrap: use begin() for initialization").ToLocalChecked()));
+        Nan::New("QPainterWrap: use begin() for initialization").ToLocalChecked()));
   }
 
   QPainterWrap* w = new QPainterWrap();
@@ -92,7 +92,7 @@ NAN_METHOD(QPainterWrap::Begin) {
 
   if (!info[0]->IsObject())
     return Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QPainterWrap:Begin: bad arguments").ToLocalChecked()));
+        Nan::New("QPainterWrap:Begin: bad arguments").ToLocalChecked()));
 
   QString constructor_name = 
     qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
@@ -104,14 +104,14 @@ NAN_METHOD(QPainterWrap::Begin) {
         info[0]->ToObject());
     QPixmap* pixmap = pixmap_wrap->GetWrapped();
 
-    info.GetReturnValue().Set(Nan::New<Boolean>(q->begin(pixmap)));
+    info.GetReturnValue().Set(Nan::New(q->begin(pixmap)));
   } else if (constructor_name == "QWidget") {
     // QWidget
     QWidgetWrap* widget_wrap = ObjectWrap::Unwrap<QWidgetWrap>(
         info[0]->ToObject());
     QWidget* widget = widget_wrap->GetWrapped();
 
-    info.GetReturnValue().Set(Nan::New<Boolean>(q->begin(widget)));
+    info.GetReturnValue().Set(Nan::New(q->begin(widget)));
   }
 
   // Unknown argument type
@@ -122,14 +122,14 @@ NAN_METHOD(QPainterWrap::End) {
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->end()));
+  info.GetReturnValue().Set(Nan::New(q->end()));
 }
 
 NAN_METHOD(QPainterWrap::IsActive) {
   QPainterWrap* w = ObjectWrap::Unwrap<QPainterWrap>(info.This());
   QPainter* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->isActive()));
+  info.GetReturnValue().Set(Nan::New(q->isActive()));
 }
 
 NAN_METHOD(QPainterWrap::Save) {
@@ -164,7 +164,7 @@ NAN_METHOD(QPainterWrap::SetPen) {
 
   if (arg0_constructor != "QPen")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::SetPen: bad argument").ToLocalChecked()));
+      Nan::New("QPainterWrap::SetPen: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QPenWrap* pen_wrap = ObjectWrap::Unwrap<QPenWrap>(
@@ -188,7 +188,7 @@ NAN_METHOD(QPainterWrap::SetFont) {
 
   if (arg0_constructor != "QFont")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::SetFont: bad argument").ToLocalChecked()));
+      Nan::New("QPainterWrap::SetFont: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QFontWrap* font_wrap = ObjectWrap::Unwrap<QFontWrap>(
@@ -213,7 +213,7 @@ NAN_METHOD(QPainterWrap::SetMatrix) {
 
   if (arg0_constructor != "QMatrix")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::SetMatrix: bad argument").ToLocalChecked()));
+      Nan::New("QPainterWrap::SetMatrix: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QMatrixWrap* matrix_wrap = ObjectWrap::Unwrap<QMatrixWrap>(
@@ -273,7 +273,7 @@ NAN_METHOD(QPainterWrap::FillRect) {
                 (Qt::GlobalColor)info[4]->IntegerValue());
   } else {
     return Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QPainterWrap:fillRect: bad arguments").ToLocalChecked()));
+        Nan::New("QPainterWrap:fillRect: bad arguments").ToLocalChecked()));
   }
 
   info.GetReturnValue().Set(Nan::Undefined());
@@ -287,7 +287,7 @@ NAN_METHOD(QPainterWrap::DrawText) {
 
   if (!info[0]->IsNumber() || !info[1]->IsNumber() || !info[2]->IsString())
     return Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QPainterWrap:DrawText: bad arguments").ToLocalChecked()));
+        Nan::New("QPainterWrap:DrawText: bad arguments").ToLocalChecked()));
       
   q->drawText(info[0]->IntegerValue(), info[1]->IntegerValue(), 
       qt_v8::ToQString(info[2]->ToString()));
@@ -309,7 +309,7 @@ NAN_METHOD(QPainterWrap::DrawPixmap) {
 
   if (arg2_constructor != "QPixmap") {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::DrawPixmap: pixmap argument not recognized").ToLocalChecked()));
+      Nan::New("QPainterWrap::DrawPixmap: pixmap argument not recognized").ToLocalChecked()));
   }
   
   // Unwrap QPixmap
@@ -319,7 +319,7 @@ NAN_METHOD(QPainterWrap::DrawPixmap) {
 
   if (pixmap->isNull()) {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::DrawPixmap: pixmap is null, no size set?").ToLocalChecked()));
+      Nan::New("QPainterWrap::DrawPixmap: pixmap is null, no size set?").ToLocalChecked()));
   }
 
   q->drawPixmap(info[0]->IntegerValue(), info[1]->IntegerValue(), *pixmap);
@@ -341,7 +341,7 @@ NAN_METHOD(QPainterWrap::DrawImage) {
 
   if (arg2_constructor != "QImage") {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::DrawImage: image argument not recognized").ToLocalChecked()));
+      Nan::New("QPainterWrap::DrawImage: image argument not recognized").ToLocalChecked()));
   }
   
   // Unwrap QImage
@@ -351,7 +351,7 @@ NAN_METHOD(QPainterWrap::DrawImage) {
 
   if (image->isNull()) {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::DrawImage: image is null, no size set?").ToLocalChecked()));
+      Nan::New("QPainterWrap::DrawImage: image is null, no size set?").ToLocalChecked()));
   }
 
   q->drawImage(info[0]->IntegerValue(), info[1]->IntegerValue(), *image);
@@ -373,7 +373,7 @@ NAN_METHOD(QPainterWrap::StrokePath) {
 
   if (arg0_constructor != "QPainterPath") {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
+      Nan::New("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
   }
   
   QString arg1_constructor;
@@ -384,7 +384,7 @@ NAN_METHOD(QPainterWrap::StrokePath) {
 
   if (arg1_constructor != "QPen") {
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
+      Nan::New("QPainterWrap::StrokePath: bad arguments").ToLocalChecked()));
   }
 
   // Unwrap QPainterPath

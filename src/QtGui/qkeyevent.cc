@@ -76,7 +76,7 @@ NAN_METHOD(QKeyEventWrap::Key) {
   QKeyEventWrap* w = node::ObjectWrap::Unwrap<QKeyEventWrap>(info.This());
   QKeyEvent* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->key()));
+  info.GetReturnValue().Set(Nan::New(q->key()));
 }
 
 NAN_METHOD(QKeyEventWrap::Text) {

@@ -51,7 +51,7 @@ QMatrixWrap::QMatrixWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
 
     if (arg0_constructor != "QMatrix")
       Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QMatrix::QMatrix: bad argument").ToLocalChecked()));
+        Nan::New("QMatrix::QMatrix: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QMatrixWrap* q_wrap = ObjectWrap::Unwrap<QMatrixWrap>(
@@ -112,42 +112,42 @@ NAN_METHOD(QMatrixWrap::M11) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->m11()));
+  info.GetReturnValue().Set(Nan::New(q->m11()));
 }
 
 NAN_METHOD(QMatrixWrap::M12) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->m12()));
+  info.GetReturnValue().Set(Nan::New(q->m12()));
 }
 
 NAN_METHOD(QMatrixWrap::M21) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->m21()));
+  info.GetReturnValue().Set(Nan::New(q->m21()));
 }
 
 NAN_METHOD(QMatrixWrap::M22) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->m22()));
+  info.GetReturnValue().Set(Nan::New(q->m22()));
 }
 
 NAN_METHOD(QMatrixWrap::Dx) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->dx()));
+  info.GetReturnValue().Set(Nan::New(q->dx()));
 }
 
 NAN_METHOD(QMatrixWrap::Dy) {
   QMatrixWrap* w = ObjectWrap::Unwrap<QMatrixWrap>(info.This());
   QMatrix* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->dy()));
+  info.GetReturnValue().Set(Nan::New(q->dy()));
 }
 
 NAN_METHOD(QMatrixWrap::Translate) {

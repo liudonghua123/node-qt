@@ -81,7 +81,7 @@ NAN_METHOD(QPainterPathWrap::MoveTo) {
   
   if (arg0_constructor != "QPointF")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
+      Nan::New("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
 
   // moveTo( QPointF point )
   QPointFWrap* pointf_wrap = ObjectWrap::Unwrap<QPointFWrap>(
@@ -114,7 +114,7 @@ NAN_METHOD(QPainterPathWrap::LineTo) {
   
   if (arg0_constructor != "QPointF")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
+      Nan::New("QPainterPathWrap::MoveTo: argument not recognized").ToLocalChecked()));
 
   // lineTo( QPointF point )
   QPointFWrap* pointf_wrap = ObjectWrap::Unwrap<QPointFWrap>(

@@ -56,7 +56,7 @@ QScrollAreaWrap::QScrollAreaWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
 
   if (arg0_constructor != "QWidget")
     Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QScrollArea::constructor: bad argument").ToLocalChecked()));
+      Nan::New("QScrollArea::constructor: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QWidgetWrap* q_wrap = ObjectWrap::Unwrap<QWidgetWrap>(
@@ -148,14 +148,14 @@ NAN_METHOD(QScrollAreaWrap::Width) {
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(info.This());
   QScrollArea* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->width()));
+  info.GetReturnValue().Set(Nan::New(q->width()));
 }
 
 NAN_METHOD(QScrollAreaWrap::Height) {
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(info.This());
   QScrollArea* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->height()));
+  info.GetReturnValue().Set(Nan::New(q->height()));
 }
 
 NAN_METHOD(QScrollAreaWrap::ObjectName) {
@@ -208,7 +208,7 @@ NAN_METHOD(QScrollAreaWrap::SetWidget) {
 
   if (arg0_constructor != "QWidget")
     return Nan::ThrowError(Exception::TypeError(
-      Nan::New<String>("QScrollArea::SetWidget: bad argument").ToLocalChecked()));
+      Nan::New("QScrollArea::SetWidget: bad argument").ToLocalChecked()));
 
   // Unwrap obj
   QWidgetWrap* widget_wrap = ObjectWrap::Unwrap<QWidgetWrap>(
@@ -228,7 +228,7 @@ NAN_METHOD(QScrollAreaWrap::Widget) {
 
   int retvalue = q->widget() ? 1 : 0;
 
-  info.GetReturnValue().Set(Nan::New<Integer>(retvalue));
+  info.GetReturnValue().Set(Nan::New(retvalue));
 }
 
 NAN_METHOD(QScrollAreaWrap::SetFrameShape) {
@@ -264,14 +264,14 @@ NAN_METHOD(QScrollAreaWrap::X) {
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(info.This());
   QScrollArea* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->x()));
+  info.GetReturnValue().Set(Nan::New(q->x()));
 }
 
 NAN_METHOD(QScrollAreaWrap::Y) {
   QScrollAreaWrap* w = node::ObjectWrap::Unwrap<QScrollAreaWrap>(info.This());
   QScrollArea* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->y()));
+  info.GetReturnValue().Set(Nan::New(q->y()));
 }
 
 NAN_METHOD(QScrollAreaWrap::SetVerticalScrollBarPolicy) {

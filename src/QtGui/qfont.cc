@@ -55,7 +55,7 @@ QFontWrap::QFontWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
 
     if (arg0_constructor != "QFont")
       Nan::ThrowError(Exception::TypeError(
-        Nan::New<String>("QFont::QFont: bad argument").ToLocalChecked()));
+        Nan::New("QFont::QFont: bad argument").ToLocalChecked()));
 
     // Unwrap obj
     QFontWrap* q_wrap = ObjectWrap::Unwrap<QFontWrap>(
@@ -162,7 +162,7 @@ NAN_METHOD(QFontWrap::PixelSize) {
   QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->pixelSize()));
+  info.GetReturnValue().Set(Nan::New(q->pixelSize()));
 }
 
 NAN_METHOD(QFontWrap::SetPointSize) {
@@ -178,7 +178,7 @@ NAN_METHOD(QFontWrap::PointSize) {
   QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->pointSize()));
+  info.GetReturnValue().Set(Nan::New(q->pointSize()));
 }
 
 NAN_METHOD(QFontWrap::SetPointSizeF) {
@@ -194,5 +194,5 @@ NAN_METHOD(QFontWrap::PointSizeF) {
   QFontWrap* w = ObjectWrap::Unwrap<QFontWrap>(info.This());
   QFont* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->pointSizeF()));
+  info.GetReturnValue().Set(Nan::New(q->pointSizeF()));
 }

@@ -238,14 +238,14 @@ NAN_METHOD(QWidgetWrap::Width) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->width()));
+  info.GetReturnValue().Set(Nan::New(q->width()));
 }
 
 NAN_METHOD(QWidgetWrap::Height) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->height()));
+  info.GetReturnValue().Set(Nan::New(q->height()));
 }
 
 NAN_METHOD(QWidgetWrap::ObjectName) {
@@ -380,7 +380,7 @@ NAN_METHOD(QWidgetWrap::HasMouseTracking) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->hasMouseTracking()));
+  info.GetReturnValue().Set(Nan::New(q->hasMouseTracking()));
 }
 
 NAN_METHOD(QWidgetWrap::SetMouseTracking) {
@@ -416,12 +416,12 @@ NAN_METHOD(QWidgetWrap::X) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->x()));
+  info.GetReturnValue().Set(Nan::New(q->x()));
 }
 
 NAN_METHOD(QWidgetWrap::Y) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidgetImpl* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Integer>(q->y()));
+  info.GetReturnValue().Set(Nan::New(q->y()));
 }

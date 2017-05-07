@@ -75,5 +75,5 @@ NAN_METHOD(QImageWrap::IsNull) {
   QImageWrap* w = ObjectWrap::Unwrap<QImageWrap>(info.This());
   QImage* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->isNull()));
+  info.GetReturnValue().Set(Nan::New(q->isNull()));
 }

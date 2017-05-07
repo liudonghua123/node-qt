@@ -79,14 +79,14 @@ NAN_METHOD(QPixmapWrap::Width) {
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->width()));
+  info.GetReturnValue().Set(Nan::New(q->width()));
 }
 
 NAN_METHOD(QPixmapWrap::Height) {
   QPixmapWrap* w = ObjectWrap::Unwrap<QPixmapWrap>(info.This());
   QPixmap* q = w->GetWrapped();
 
-  info.GetReturnValue().Set(Nan::New<Number>(q->height()));
+  info.GetReturnValue().Set(Nan::New(q->height()));
 }
 
 NAN_METHOD(QPixmapWrap::Save) {
@@ -95,7 +95,7 @@ NAN_METHOD(QPixmapWrap::Save) {
 
   QString file(qt_v8::ToQString(info[0]->ToString()));
 
-  info.GetReturnValue().Set(Nan::New<Boolean>(q->save(file)));
+  info.GetReturnValue().Set(Nan::New(q->save(file)));
 }
 
 // Supports:
