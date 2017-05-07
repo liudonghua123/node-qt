@@ -113,9 +113,10 @@ NAN_METHOD(QPainterWrap::Begin) {
 
     info.GetReturnValue().Set(Nan::New(q->begin(widget)));
   }
-
-  // Unknown argument type
-  info.GetReturnValue().Set(Nan::False());
+  else {
+    // Unknown argument type
+    info.GetReturnValue().Set(Nan::False());
+  }
 }
 
 NAN_METHOD(QPainterWrap::End) {
