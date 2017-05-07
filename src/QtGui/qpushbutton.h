@@ -27,52 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "QtCore/qsize.h"
-#include "QtCore/qpointf.h"
+#pragma once
 
-#include "QtGui/qapplication.h"
-#include "QtGui/qwidget.h"
-#include "QtGui/qmouseevent.h"
-#include "QtGui/qkeyevent.h"
-#include "QtGui/qpixmap.h"
-#include "QtGui/qpainter.h"
-#include "QtGui/qcolor.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qpen.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qpainterpath.h"
-#include "QtGui/qfont.h"
-#include "QtGui/qmatrix.h"
-#include "QtGui/qsound.h"
-#include "QtGui/qscrollarea.h"
-#include "QtGui/qscrollbar.h"
-#include "QtGui/qpushbutton.h"
+#include <node.h>
+#include <node_object_wrap.h>
+#include <nan.h>
+#include <QPushButton>
 
-#include "QtTest/qtesteventlist.h"
+class QPushButtonWrap : public node::ObjectWrap {
+ public:
+  static void Initialize(v8::Handle<v8::Object> target);
+  QPushButton* GetWrapped() const { return q_; };
 
-using namespace v8;
+ private:
+  QPushButtonWrap(Nan::NAN_METHOD_ARGS_TYPE info);
+  ~QPushButtonWrap();
+  static Nan::Persistent<v8::Function> constructor;
+  static NAN_METHOD(New);
 
-void Initialize(Handle<Object> target) {
-  QApplicationWrap::Initialize(target);
-  QWidgetWrap::Initialize(target);
-  QSizeWrap::Initialize(target);
-  QMouseEventWrap::Initialize(target);
-  QKeyEventWrap::Initialize(target);
-  QTestEventListWrap::Initialize(target);
-  QPixmapWrap::Initialize(target);
-  QPainterWrap::Initialize(target);
-  QColorWrap::Initialize(target);
-  QBrushWrap::Initialize(target);
-  QPenWrap::Initialize(target);
-  QImageWrap::Initialize(target);
-  QPointFWrap::Initialize(target);
-  QPainterPathWrap::Initialize(target);
-  QFontWrap::Initialize(target);
-  QMatrixWrap::Initialize(target);
-  QSoundWrap::Initialize(target);
-  QScrollAreaWrap::Initialize(target);
-  QScrollBarWrap::Initialize(target);
-  QPushButtonWrap::Initialize(target);
-}
+  // Wrapped methods
+  static NAN_METHOD(SetText);
 
-NODE_MODULE(qt, Initialize)
+  // Wrapped object
+  QPushButton* q_;
+};

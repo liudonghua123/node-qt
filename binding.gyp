@@ -24,6 +24,7 @@
         'src/QtGui/qsound.cc',
         'src/QtGui/qscrollarea.cc',
         'src/QtGui/qscrollbar.cc',
+        'src/QtGui/qpushbutton.cc',
 
         'src/QtTest/qtesteventlist.cc'
       ],
