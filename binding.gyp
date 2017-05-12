@@ -9,6 +9,7 @@
         'src/QtCore/qpointf.cc',
 
         'src/QtGui/qapplication.cc',
+        'src/QtGui/qwidgetwrapbase.cc',
         'src/QtGui/qwidget.cc',
         'src/QtGui/qmouseevent.cc',
         'src/QtGui/qkeyevent.cc',

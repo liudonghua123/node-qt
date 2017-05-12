@@ -35,116 +35,14 @@
 
 using namespace v8;
 
-Nan::Persistent<Function> QWidgetWrap::constructor;
-
-//
-// QWidgetImpl()
-//
-
-QWidgetImpl::QWidgetImpl(QWidgetImpl* parent) : QWidget(parent) {
-}
-
-QWidgetImpl::~QWidgetImpl() {
-  delete &paintEventCallback_;
-  delete &mousePressCallback_;
-  delete &mouseReleaseCallback_;
-  delete &mouseMoveCallback_;
-  delete &keyPressCallback_;
-  delete &keyReleaseCallback_;
-}
-
-void QWidgetImpl::paintEvent(QPaintEvent* e) {
-  if (paintEventCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 0;
-  Handle<Value> argv[1] = {};
-    
-  Nan::Callback(Nan::New(paintEventCallback_)).Call(argc, argv);
-}
-
-void QWidgetImpl::mousePressEvent(QMouseEvent* e) {
-  e->ignore(); // ensures event bubbles up
-
-  if (mousePressCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = {
-    QMouseEventWrap::NewInstance(*e)
-  };
-  
-  Nan::Callback(Nan::New(mousePressCallback_)).Call(argc, argv);
-}
-
-void QWidgetImpl::mouseReleaseEvent(QMouseEvent* e) {
-  e->ignore(); // ensures event bubbles up
-
-  if (mouseReleaseCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = {
-    QMouseEventWrap::NewInstance(*e)
-  };
-  
-  Nan::Callback(Nan::New(mouseReleaseCallback_)).Call(argc, argv);
-}
-
-void QWidgetImpl::mouseMoveEvent(QMouseEvent* e) {
-  e->ignore(); // ensures event bubbles up
-
-  if (mouseMoveCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = {
-    QMouseEventWrap::NewInstance(*e)
-  };
-  
-  Nan::Callback(Nan::New(mouseMoveCallback_)).Call(argc, argv);
-}
-
-void QWidgetImpl::keyPressEvent(QKeyEvent* e) {
-  e->ignore(); // ensures event bubbles up
-
-  if (keyPressCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = {
-    QKeyEventWrap::NewInstance(*e)
-  };
-  
-  Nan::Callback(Nan::New(keyPressCallback_)).Call(argc, argv);
-}
-
-void QWidgetImpl::keyReleaseEvent(QKeyEvent* e) {
-  e->ignore(); // ensures event bubbles up
-
-  if (keyReleaseCallback_.IsEmpty()) {
-    return;
-  }
-
-  const unsigned argc = 1;
-  Handle<Value> argv[argc] = {
-    QKeyEventWrap::NewInstance(*e)
-  };
-  
-  Nan::Callback(Nan::New(keyReleaseCallback_)).Call(argc, argv);
-}
+Nan::Persistent<FunctionTemplate> QWidgetWrap::prototype;
 
 //
 // QWidgetWrap()
 //
 
 QWidgetWrap::QWidgetWrap(QWidgetImpl* parent) {
-  q_ = new QWidgetImpl(parent);
+  q_ = new QWidgetImpl(parent, this);
 }
 
 QWidgetWrap::~QWidgetWrap() {
@@ -176,16 +74,10 @@ void QWidgetWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "y", Y);
 
   // Events
-  Nan::SetPrototypeMethod(tpl, "paintEvent", PaintEvent);
-  Nan::SetPrototypeMethod(tpl, "mousePressEvent", MousePressEvent);
-  Nan::SetPrototypeMethod(tpl, "mouseReleaseEvent", MouseReleaseEvent);
-  Nan::SetPrototypeMethod(tpl, "mouseMoveEvent", MouseMoveEvent);
-  Nan::SetPrototypeMethod(tpl, "keyPressEvent", KeyPressEvent);
-  Nan::SetPrototypeMethod(tpl, "keyReleaseEvent", KeyReleaseEvent);
+  QWidgetWrapBase::Inherit(tpl);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QWidget").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Nan::Set(target, Nan::New("QWidget").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
 }
 
 NAN_METHOD(QWidgetWrap::New) {
@@ -275,96 +167,6 @@ NAN_METHOD(QWidgetWrap::Parent) {
   QWidgetImpl* q = w->GetWrapped();
 
   info.GetReturnValue().Set(qt_v8::FromQString(q->parent()->objectName()));
-}
-
-//
-// PaintEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::PaintEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->paintEventCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
-}
-
-//
-// MousePressEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::MousePressEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->mousePressCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
-}
-
-//
-// MouseReleaseEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::MouseReleaseEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->mouseReleaseCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
-}
-
-//
-// MouseMoveEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::MouseMoveEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->mouseMoveCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
-}
-
-//
-// KeyPressEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::KeyPressEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->keyPressCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
-}
-
-//
-// KeyReleaseEvent()
-// Binds a callback to Qt's event
-//
-NAN_METHOD(QWidgetWrap::KeyReleaseEvent) {
-  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
-
-  if (info[0]->IsFunction()) {
-    q->keyReleaseCallback_.Reset(Local<Function>::Cast(info[0]));
-  }
-
-  info.GetReturnValue().Set(Nan::Undefined());
 }
 
 NAN_METHOD(QWidgetWrap::Update) {

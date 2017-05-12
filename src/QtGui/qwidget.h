@@ -32,43 +32,22 @@
 #include <node.h>
 #include <nan.h>
 #include <QWidget>
+#include "qwidgetwrapbase.h"
 
-//
-// QWidgetImpl()
-// Extends QWidget to implement virtual methods from QWidget
-//
-class QWidgetImpl : public QWidget {
- public:
-  QWidgetImpl(QWidgetImpl* parent);
-  ~QWidgetImpl();  
-  Nan::Persistent<v8::Function> paintEventCallback_;
-  Nan::Persistent<v8::Function> mousePressCallback_;
-  Nan::Persistent<v8::Function> mouseReleaseCallback_;
-  Nan::Persistent<v8::Function> mouseMoveCallback_;
-  Nan::Persistent<v8::Function> keyPressCallback_;
-  Nan::Persistent<v8::Function> keyReleaseCallback_;
-
- private:
-  void paintEvent(QPaintEvent* e);
-  void mousePressEvent(QMouseEvent* e);
-  void mouseReleaseEvent(QMouseEvent* e);
-  void mouseMoveEvent(QMouseEvent* e);
-  void keyPressEvent(QKeyEvent* e);
-  void keyReleaseEvent(QKeyEvent* e);
-};
+class QWidgetImpl;
 
 //
 // QWidgetWrap()
 //
-class QWidgetWrap : public node::ObjectWrap {
+class QWidgetWrap : public QWidgetWrapBase {
  public:
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
   static void Initialize(v8::Handle<v8::Object> target);
   QWidgetImpl* GetWrapped() const { return q_; };
 
  private:
   QWidgetWrap(QWidgetImpl* parent);
   ~QWidgetWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods
@@ -89,17 +68,44 @@ class QWidgetWrap : public node::ObjectWrap {
   static NAN_METHOD(X);
   static NAN_METHOD(Y);
 
-  // QUIRK
-  // Event binding. These functions bind implemented event handlers above
-  // to the given callbacks. This is necessary as in Qt such handlers
-  // are virtual and we can't dynamically implement them from JS
-  static NAN_METHOD(PaintEvent);
-  static NAN_METHOD(MousePressEvent);
-  static NAN_METHOD(MouseReleaseEvent);
-  static NAN_METHOD(MouseMoveEvent);
-  static NAN_METHOD(KeyPressEvent);
-  static NAN_METHOD(KeyReleaseEvent);
-
   // Wrapped object
   QWidgetImpl* q_;
+};
+
+//
+// QWidgetImpl()
+// Extends QWidget to implement virtual methods from QWidget
+//
+class QWidgetImpl : public QWidget {
+ public:
+  QWidgetImpl(QWidgetImpl* parent, QWidgetWrap* wrapper) : QWidget(parent) {
+    this->wrapper = wrapper;
+  }
+
+ protected:
+  QWidgetWrap* wrapper;
+  virtual void paintEvent(QPaintEvent* e) {
+    QWidget::paintEvent(e);
+    wrapper->paintEvent(e);
+  };
+  virtual void mousePressEvent(QMouseEvent* e) {
+    QWidget::mousePressEvent(e);
+    wrapper->mousePressEvent(e);
+  };
+  virtual void mouseReleaseEvent(QMouseEvent* e) {
+    QWidget::mouseReleaseEvent(e);
+    wrapper->mouseReleaseEvent(e);
+  };
+  virtual void mouseMoveEvent(QMouseEvent* e) {
+    QWidget::mouseMoveEvent(e);
+    wrapper->mouseMoveEvent(e);
+  };
+  virtual void keyPressEvent(QKeyEvent* e) {
+    QWidget::keyPressEvent(e);
+    wrapper->keyPressEvent(e);
+  };
+  virtual void keyReleaseEvent(QKeyEvent* e) {
+    QWidget::keyReleaseEvent(e);
+    wrapper->keyReleaseEvent(e);
+  };
 };

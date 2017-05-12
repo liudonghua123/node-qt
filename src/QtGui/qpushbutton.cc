@@ -28,7 +28,6 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include "qpushbutton.h"
-#include "qwidget.h"
 #include "../qt_v8.h"
 
 using namespace v8;
@@ -49,9 +48,9 @@ QPushButtonWrap::QPushButtonWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
     
     QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
         info[1]->ToObject());
-    QWidget* widget = widgetWrapper->GetWrapped();
+    QWidgetImpl* widget = widgetWrapper->GetWrapped();
     
-    q_ = new QPushButton(text, widget);
+    q_ = new QPushButtonImpl(text, widget, this);
   }
   else {
     Nan::ThrowError(Exception::TypeError(
@@ -66,6 +65,7 @@ QPushButtonWrap::~QPushButtonWrap() {
 void QPushButtonWrap::Initialize(Handle<Object> target) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
+  tpl->Inherit(Nan::New(QWidgetWrap::prototype));
   tpl->SetClassName(Nan::New("QPushButton").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
