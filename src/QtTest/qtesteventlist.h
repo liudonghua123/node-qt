@@ -30,7 +30,6 @@
 #pragma once
 
 #include <node.h>
-#include <node_object_wrap.h>
 #include <nan.h>
 #define QT_GUI_LIB // necessary for QTestEventList
 #define QT_WIDGETS_LIB // necessary for QTestEventList
