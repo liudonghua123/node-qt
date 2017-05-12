@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QBrushWrap::prototype;
 Nan::Persistent<Function> QBrushWrap::constructor;
 
 // Supported constructors
@@ -48,7 +49,7 @@ QBrushWrap::~QBrushWrap() {
   delete q_;
 }
 
-void QBrushWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QBrushWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QBrush").ToLocalChecked());
@@ -56,9 +57,10 @@ void QBrushWrap::Initialize(Handle<Object> target) {
 
   // Prototype
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QBrush").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QBrush").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QBrushWrap::New) {

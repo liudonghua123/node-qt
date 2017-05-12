@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QPushButtonWrap::prototype;
 Nan::Persistent<Function> QPushButtonWrap::constructor;
 
 QPushButtonWrap::QPushButtonWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
@@ -62,7 +63,7 @@ QPushButtonWrap::~QPushButtonWrap() {
   delete q_;
 }
 
-void QPushButtonWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QPushButtonWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->Inherit(Nan::New(QWidgetWrap::prototype));
@@ -72,9 +73,10 @@ void QPushButtonWrap::Initialize(Handle<Object> target) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "setText", SetText);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QPushButton").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QPushButton").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QPushButtonWrap::New) {

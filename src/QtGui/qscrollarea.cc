@@ -36,6 +36,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QScrollAreaWrap::prototype;
 Nan::Persistent<Function> QScrollAreaWrap::constructor;
 
 // Supported implementations:
@@ -70,7 +71,7 @@ QScrollAreaWrap::~QScrollAreaWrap() {
   delete q_;
 }
 
-void QScrollAreaWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QScrollAreaWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QScrollArea").ToLocalChecked());
@@ -100,9 +101,10 @@ void QScrollAreaWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "verticalScrollBar", VerticalScrollBar);
   Nan::SetPrototypeMethod(tpl, "horizontalScrollBar", HorizontalScrollBar);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QScrollArea").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QScrollArea").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QScrollAreaWrap::New) {

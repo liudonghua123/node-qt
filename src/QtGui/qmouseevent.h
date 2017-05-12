@@ -35,7 +35,8 @@
 
 class QMouseEventWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   static v8::Handle<v8::Value> NewInstance(QMouseEvent q);
   QMouseEvent* GetWrapped() const { return q_; };
   void SetWrapped(QMouseEvent q) { 
@@ -44,9 +45,9 @@ class QMouseEventWrap : public node::ObjectWrap {
   };
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QMouseEventWrap();
   ~QMouseEventWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

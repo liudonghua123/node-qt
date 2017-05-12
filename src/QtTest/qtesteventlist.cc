@@ -35,6 +35,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QTestEventListWrap::prototype;
 Nan::Persistent<Function> QTestEventListWrap::constructor;
 
 QTestEventListWrap::QTestEventListWrap() {
@@ -45,7 +46,7 @@ QTestEventListWrap::~QTestEventListWrap() {
   delete q_;
 }
 
-void QTestEventListWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QTestEventListWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QTestEventList").ToLocalChecked());
@@ -56,9 +57,10 @@ void QTestEventListWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "addKeyPress", AddKeyPress);
   Nan::SetPrototypeMethod(tpl, "simulate", Simulate);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QTestEventList").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QTestEventList").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QTestEventListWrap::New) {

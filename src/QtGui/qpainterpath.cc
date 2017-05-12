@@ -33,6 +33,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QPainterPathWrap::prototype;
 Nan::Persistent<Function> QPainterPathWrap::constructor;
 
 // Supported implementations:
@@ -45,7 +46,7 @@ QPainterPathWrap::~QPainterPathWrap() {
   delete q_;
 }
 
-void QPainterPathWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QPainterPathWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPainterPath").ToLocalChecked());
@@ -57,9 +58,10 @@ void QPainterPathWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "currentPosition", CurrentPosition);
   Nan::SetPrototypeMethod(tpl, "closeSubpath", CloseSubpath);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QPainterPath").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QPainterPath").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QPainterPathWrap::New) {

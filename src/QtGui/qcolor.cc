@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QColorWrap::prototype;
 Nan::Persistent<Function> QColorWrap::constructor;
 
 // Supported implementations:
@@ -72,7 +73,7 @@ QColorWrap::~QColorWrap() {
   delete q_;
 }
 
-void QColorWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QColorWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QColor").ToLocalChecked());
@@ -85,9 +86,10 @@ void QColorWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "alpha", Alpha);
   Nan::SetPrototypeMethod(tpl, "name", Name);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QColor").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QColor").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QColorWrap::New) {

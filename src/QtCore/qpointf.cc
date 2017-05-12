@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QPointFWrap::prototype;
 Nan::Persistent<Function> QPointFWrap::constructor;
 
 // Supported implementations:
@@ -58,9 +59,10 @@ NAN_MODULE_INIT(QPointFWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "y", Y);
   Nan::SetPrototypeMethod(tpl, "isNull", IsNull);
   
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QPointF").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QPointF").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QPointFWrap::New) {

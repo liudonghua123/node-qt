@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QSoundWrap::prototype;
 Nan::Persistent<Function> QSoundWrap::constructor;
 
 // Supported implementations:
@@ -44,7 +45,7 @@ QSoundWrap::~QSoundWrap() {
   delete q_;
 }
 
-void QSoundWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QSoundWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QSound").ToLocalChecked());
@@ -55,9 +56,10 @@ void QSoundWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "fileName", FileName);
   Nan::SetPrototypeMethod(tpl, "setLoops", SetLoops);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QSound").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QSound").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QSoundWrap::New) {

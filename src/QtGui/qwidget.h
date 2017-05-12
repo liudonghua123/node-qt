@@ -42,10 +42,11 @@ class QWidgetImpl;
 class QWidgetWrap : public QWidgetWrapBase {
  public:
   static Nan::Persistent<v8::FunctionTemplate> prototype;
-  static void Initialize(v8::Handle<v8::Object> target);
+  static NAN_MODULE_INIT(Initialize);
   QWidgetImpl* GetWrapped() const { return q_; };
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QWidgetWrap(QWidgetImpl* parent);
   ~QWidgetWrap();
   static NAN_METHOD(New);

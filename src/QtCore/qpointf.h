@@ -35,18 +35,19 @@
 
 class QPointFWrap : public node::ObjectWrap {
  public:
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
   static NAN_MODULE_INIT(Initialize);
-  static v8::Handle<v8::Value> NewInstance(QPointF q);
   QPointF* GetWrapped() const { return q_; };
   void SetWrapped(QPointF q) { 
     if (q_) delete q_; 
     q_ = new QPointF(q); 
   };
+  static v8::Handle<v8::Value> NewInstance(QPointF q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QPointFWrap(const Nan::FunctionCallbackInfo<v8::Value>& args);
   ~QPointFWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

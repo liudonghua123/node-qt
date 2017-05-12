@@ -35,7 +35,8 @@
 
 class QMatrixWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   QMatrix* GetWrapped() const { return q_; };
   void SetWrapped(QMatrix q) { 
     if (q_) delete q_; 
@@ -44,9 +45,9 @@ class QMatrixWrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(QMatrix q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QMatrixWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QMatrixWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

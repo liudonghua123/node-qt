@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> __Template__Wrap::prototype;
 Nan::Persistent<Function> __Template__Wrap::constructor;
 
 // Supported implementations:
@@ -43,7 +44,7 @@ __Template__Wrap::~__Template__Wrap() {
   delete q_;
 }
 
-void __Template__Wrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("__Template__").ToLocalChecked());
@@ -52,17 +53,18 @@ void __Template__Wrap::Initialize(Handle<Object> target) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "example", Example);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("__Template__").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("__Template__").ToLocalChecked(), function);
 }
 
-Handle<Value> __Template__Wrap::New(Nan::NAN_METHOD_ARGS_TYPE info) {
+NAN_METHOD(__Template__Wrap::New) {
   __Template__Wrap* w = new __Template__Wrap(info);
   w->Wrap(info.This());
 }
 
-Handle<Value> __Template__Wrap::NewInstance(__Template__ q) {
+NAN_METHOD(__Template__Wrap::NewInstance) {
   Nan::EscapableHandleScope scope;
   
   Local<Object> instance = Nan::NewInstance(Nan::New(constructor), 0, NULL).ToLocalChecked();
@@ -72,7 +74,7 @@ Handle<Value> __Template__Wrap::NewInstance(__Template__ q) {
   return scope.Escape(instance);
 }
 
-Handle<Value> __Template__Wrap::Example(NAN_METHOD_ARGS_TYPE args) {
+NAN_METHOD(__Template__Wrap::Example) {
   __Template__Wrap* w = ObjectWrap::Unwrap<__Template__Wrap>(info.This());
   __Template__* q = w->GetWrapped();
 

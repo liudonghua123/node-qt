@@ -35,7 +35,7 @@
 
 class __Template__Wrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static NAN_MODULE_INIT(Initialize);
   __Template__* GetWrapped() const { return q_; };
   void SetWrapped(__Template__ q) { 
     if (q_) delete q_; 
@@ -44,9 +44,9 @@ class __Template__Wrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(__Template__ q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   __Template__Wrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~__Template__Wrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

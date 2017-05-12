@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QFontWrap::prototype;
 Nan::Persistent<Function> QFontWrap::constructor;
 
 // Supported implementations:
@@ -97,7 +98,7 @@ QFontWrap::~QFontWrap() {
   delete q_;
 }
 
-void QFontWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QFontWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QFont").ToLocalChecked());
@@ -113,9 +114,10 @@ void QFontWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "setPointSizeF", SetPointSizeF);
   Nan::SetPrototypeMethod(tpl, "pointSizeF", PointSizeF);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QFont").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QFont").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QFontWrap::New) {

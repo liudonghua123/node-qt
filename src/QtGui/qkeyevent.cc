@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QKeyEventWrap::prototype;
 Nan::Persistent<Function> QKeyEventWrap::constructor;
 
 QKeyEventWrap::QKeyEventWrap() : q_(NULL) {
@@ -43,7 +44,7 @@ QKeyEventWrap::~QKeyEventWrap() {
   delete q_;
 }
 
-void QKeyEventWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QKeyEventWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QKeyEvent").ToLocalChecked());
@@ -52,9 +53,10 @@ void QKeyEventWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "key", Key);
   Nan::SetPrototypeMethod(tpl, "text", Text);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QKeyEvent").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QKeyEvent").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QKeyEventWrap::New) {

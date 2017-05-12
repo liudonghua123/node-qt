@@ -35,18 +35,19 @@
 
 class QKeyEventWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
-  static v8::Handle<v8::Value> NewInstance(QKeyEvent q);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   QKeyEvent* GetWrapped() const { return q_; };
   void SetWrapped(QKeyEvent q) { 
     if (q_) delete q_; 
     q_ = new QKeyEvent(q); 
   };
+  static v8::Handle<v8::Value> NewInstance(QKeyEvent q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QKeyEventWrap();
   ~QKeyEventWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

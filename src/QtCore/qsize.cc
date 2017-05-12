@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QSizeWrap::prototype;
 Nan::Persistent<Function> QSizeWrap::constructor;
 
 QSizeWrap::QSizeWrap() : q_(NULL) {
@@ -52,9 +53,10 @@ NAN_MODULE_INIT(QSizeWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "width", Width);
   Nan::SetPrototypeMethod(tpl, "height", Height);
   
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QSize").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QSize").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QSizeWrap::New) {

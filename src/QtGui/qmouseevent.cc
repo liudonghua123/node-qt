@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QMouseEventWrap::prototype;
 Nan::Persistent<Function> QMouseEventWrap::constructor;
 
 QMouseEventWrap::QMouseEventWrap() : q_(NULL) {
@@ -42,7 +43,7 @@ QMouseEventWrap::~QMouseEventWrap() {
   delete q_;
 }
 
-void QMouseEventWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QMouseEventWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QMouseEvent").ToLocalChecked());
@@ -52,9 +53,10 @@ void QMouseEventWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "y", Y);
   Nan::SetPrototypeMethod(tpl, "button", Button);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QMouseEvent").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QMouseEvent").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QMouseEventWrap::New) {

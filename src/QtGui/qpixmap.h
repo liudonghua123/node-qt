@@ -35,18 +35,19 @@
 
 class QPixmapWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
-  static v8::Handle<v8::Value> NewInstance(QPixmap q);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   QPixmap* GetWrapped() const { return q_; };
   void SetWrapped(QPixmap q) { 
     if (q_) delete q_; 
     q_ = new QPixmap(q); 
   };
+  static v8::Handle<v8::Value> NewInstance(QPixmap q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QPixmapWrap(int width, int height);
   ~QPixmapWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

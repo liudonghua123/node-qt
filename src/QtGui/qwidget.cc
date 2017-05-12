@@ -36,6 +36,7 @@
 using namespace v8;
 
 Nan::Persistent<FunctionTemplate> QWidgetWrap::prototype;
+Nan::Persistent<Function> QWidgetWrap::constructor;
 
 //
 // QWidgetWrap()
@@ -49,7 +50,7 @@ QWidgetWrap::~QWidgetWrap() {
   delete q_;
 }
 
-void QWidgetWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QWidgetWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QWidget").ToLocalChecked());
@@ -77,7 +78,9 @@ void QWidgetWrap::Initialize(Handle<Object> target) {
   QWidgetWrapBase::Inherit(tpl);
 
   prototype.Reset(tpl);
-  Nan::Set(target, Nan::New("QWidget").ToLocalChecked(), Nan::GetFunction(tpl).ToLocalChecked());
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QWidget").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QWidgetWrap::New) {

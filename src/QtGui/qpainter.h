@@ -35,13 +35,14 @@
 
 class QPainterWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   QPainter* GetWrapped() const { return q_; };
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QPainterWrap();
   ~QPainterWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   //

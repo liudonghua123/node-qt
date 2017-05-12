@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QMatrixWrap::prototype;
 Nan::Persistent<Function> QMatrixWrap::constructor;
 
 // Supported implementations:
@@ -72,7 +73,7 @@ QMatrixWrap::~QMatrixWrap() {
   delete q_;
 }
 
-void QMatrixWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QMatrixWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QMatrix").ToLocalChecked());
@@ -88,9 +89,10 @@ void QMatrixWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "translate", Translate);
   Nan::SetPrototypeMethod(tpl, "scale", Scale);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QMatrix").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QMatrix").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QMatrixWrap::New) {

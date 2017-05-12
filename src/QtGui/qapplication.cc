@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QApplicationWrap::prototype;
 Nan::Persistent<Function> QApplicationWrap::constructor;
 
 int QApplicationWrap::argc_ = 0;
@@ -44,7 +45,7 @@ QApplicationWrap::~QApplicationWrap() {
   delete q_;
 }
 
-void QApplicationWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QApplicationWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QApplication").ToLocalChecked());
@@ -54,9 +55,10 @@ void QApplicationWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "processEvents", ProcessEvents);
   Nan::SetPrototypeMethod(tpl, "exec", Exec);
   
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QApplication").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QApplication").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QApplicationWrap::New) {

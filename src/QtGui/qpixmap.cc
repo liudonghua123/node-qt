@@ -33,6 +33,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QPixmapWrap::prototype;
 Nan::Persistent<Function> QPixmapWrap::constructor;
 
 QPixmapWrap::QPixmapWrap(int width, int height) : q_(NULL) {
@@ -42,7 +43,7 @@ QPixmapWrap::~QPixmapWrap() {
   delete q_;
 }
 
-void QPixmapWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QPixmapWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPixmap").ToLocalChecked());
@@ -54,9 +55,10 @@ void QPixmapWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "save", Save);
   Nan::SetPrototypeMethod(tpl, "fill", Fill);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QPixmap").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QPixmap").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QPixmapWrap::New) {

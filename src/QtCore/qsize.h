@@ -35,18 +35,19 @@
 
 class QSizeWrap : public node::ObjectWrap {
  public:
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
   static NAN_MODULE_INIT(Initialize);
-  static v8::Handle<v8::Value> NewInstance(QSize q);
   QSize* GetWrapped() const { return q_; };
   void SetWrapped(QSize q) { 
     if (q_) delete q_; 
     q_ = new QSize(q); 
   };
+  static v8::Handle<v8::Value> NewInstance(QSize q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QSizeWrap();
   ~QSizeWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

@@ -31,6 +31,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QScrollBarWrap::prototype;
 Nan::Persistent<Function> QScrollBarWrap::constructor;
 
 QScrollBarWrap::QScrollBarWrap(Nan::NAN_METHOD_ARGS_TYPE info) : q_(NULL) {
@@ -41,7 +42,7 @@ QScrollBarWrap::~QScrollBarWrap() {
   // don't delete it! It'll segfault.
 }
 
-void QScrollBarWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QScrollBarWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QScrollBar").ToLocalChecked());
@@ -51,9 +52,10 @@ void QScrollBarWrap::Initialize(Handle<Object> target) {
   Nan::SetPrototypeMethod(tpl, "value", Value);
   Nan::SetPrototypeMethod(tpl, "setValue", SetValue);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QScrollBar").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QScrollBar").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QScrollBarWrap::New) {

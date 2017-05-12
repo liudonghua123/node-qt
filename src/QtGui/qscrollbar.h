@@ -35,7 +35,8 @@
 
 class QScrollBarWrap : public node::ObjectWrap {
  public:
-  static void Initialize(v8::Handle<v8::Object> target);
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
   QScrollBar* GetWrapped() const { return q_; };
   void SetWrapped(QScrollBar *q) { 
     // Since q_ is never new'd (it's always a pointer to an existing scrollbar), 
@@ -45,9 +46,9 @@ class QScrollBarWrap : public node::ObjectWrap {
   static v8::Handle<v8::Value> NewInstance(QScrollBar *q);
 
  private:
+  static Nan::Persistent<v8::Function> constructor;
   QScrollBarWrap(Nan::NAN_METHOD_ARGS_TYPE info);
   ~QScrollBarWrap();
-  static Nan::Persistent<v8::Function> constructor;
   static NAN_METHOD(New);
 
   // Wrapped methods

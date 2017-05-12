@@ -32,6 +32,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QImageWrap::prototype;
 Nan::Persistent<Function> QImageWrap::constructor;
 
 // Supported implementations:
@@ -52,7 +53,7 @@ QImageWrap::~QImageWrap() {
   delete q_;
 }
 
-void QImageWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QImageWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QImage").ToLocalChecked());
@@ -61,9 +62,10 @@ void QImageWrap::Initialize(Handle<Object> target) {
   // Prototype
   Nan::SetPrototypeMethod(tpl, "isNull", IsNull);
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QImage").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QImage").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QImageWrap::New) {

@@ -34,6 +34,7 @@
 
 using namespace v8;
 
+Nan::Persistent<FunctionTemplate> QPenWrap::prototype;
 Nan::Persistent<Function> QPenWrap::constructor;
 
 // Supported implementations:
@@ -109,15 +110,16 @@ QPenWrap::~QPenWrap() {
   delete q_;
 }
 
-void QPenWrap::Initialize(Handle<Object> target) {
+NAN_MODULE_INIT(QPenWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
   tpl->SetClassName(Nan::New("QPen").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
-  Local<Function> constructorFunction = Nan::GetFunction(tpl).ToLocalChecked();
-  constructor.Reset(constructorFunction);
-  Nan::Set(target, Nan::New("QPen").ToLocalChecked(), constructorFunction);
+  prototype.Reset(tpl);
+  Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
+  constructor.Reset(function);
+  Nan::Set(target, Nan::New("QPen").ToLocalChecked(), function);
 }
 
 NAN_METHOD(QPenWrap::New) {
