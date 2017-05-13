@@ -30,7 +30,7 @@
         'src/QtTest/qtesteventlist.cc'
       ],
       'include_dirs' : [
-          '<!(node -e "require(\'nan\')")'
+        '<!(node -e "require(\'nan\')")'
       ],
       'conditions': [
         ['OS=="mac"', { # mac with qt from homebrew
@@ -70,7 +70,18 @@
               '../deps/qt-4.8.0/win32/ia32/lib/QtTest4.lib'
           ]
         }]        
-      ]
+      ],
+      'configurations': {
+        'Release': {
+          'conditions': [
+            ['OS=="mac"', {
+              'xcode_settings': {
+                'GCC_GENERATE_DEBUGGING_SYMBOLS': 'NO'
+              }
+            }]
+          ]
+        }
+      }
     }
   ]
 }
