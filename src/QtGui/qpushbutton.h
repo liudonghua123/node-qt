@@ -35,13 +35,11 @@
 #include "qwidget.h"
 #include "qwidgetwrapbase.h"
 
-class QPushButtonImpl;
-
 class QPushButtonWrap : public QWidgetWrapBase {
  public:
   static Nan::Persistent<v8::FunctionTemplate> prototype;
   static NAN_MODULE_INIT(Initialize);
-  QPushButtonImpl* GetWrapped() const { return q_; };
+  QPushButton* GetWrapped() const { return q_; };
 
  private:
   static Nan::Persistent<v8::Function> constructor;
@@ -53,43 +51,5 @@ class QPushButtonWrap : public QWidgetWrapBase {
   static NAN_METHOD(SetText);
 
   // Wrapped object
-  QPushButtonImpl* q_;
-};
-
-//
-// QPushButtonWrap()
-// Extends QPushButton to implement virtual methods from QPushButton
-//
-class QPushButtonImpl : public QPushButton {
- public:
-  QPushButtonImpl(QString text, QWidgetImpl* parent, QPushButtonWrap* wrapper) : QPushButton(text, parent) {
-    this->wrapper = wrapper;
-  }
-
- protected:
-  QPushButtonWrap* wrapper;
-  void paintEvent(QPaintEvent* e) {
-    QPushButton::paintEvent(e);
-    wrapper->paintEvent(e);
-  }
-  void mousePressEvent(QMouseEvent* e) {
-    QPushButton::mousePressEvent(e);
-    wrapper->mousePressEvent(e);
-  }
-  void mouseReleaseEvent(QMouseEvent* e) {
-    QPushButton::mouseReleaseEvent(e);
-    wrapper->mouseReleaseEvent(e);
-  }
-  void mouseMoveEvent(QMouseEvent* e) {
-    QPushButton::mouseMoveEvent(e);
-    wrapper->mouseMoveEvent(e);
-  }
-  void keyPressEvent(QKeyEvent* e) {
-    QPushButton::keyPressEvent(e);
-    wrapper->keyPressEvent(e);
-  }
-  void keyReleaseEvent(QKeyEvent* e) {
-    QPushButton::keyReleaseEvent(e);
-    wrapper->keyReleaseEvent(e);
-  }
+  QPushButton* q_;
 };

@@ -34,8 +34,6 @@
 #include <QWidget>
 #include "qwidgetwrapbase.h"
 
-class QWidgetImpl;
-
 //
 // QWidgetWrap()
 //
@@ -43,11 +41,11 @@ class QWidgetWrap : public QWidgetWrapBase {
  public:
   static Nan::Persistent<v8::FunctionTemplate> prototype;
   static NAN_MODULE_INIT(Initialize);
-  QWidgetImpl* GetWrapped() const { return q_; };
+  QWidget* GetWrapped() const { return q_; };
 
  private:
   static Nan::Persistent<v8::Function> constructor;
-  QWidgetWrap(QWidgetImpl* parent);
+  QWidgetWrap(QWidget* parent);
   ~QWidgetWrap();
   static NAN_METHOD(New);
 
@@ -70,43 +68,5 @@ class QWidgetWrap : public QWidgetWrapBase {
   static NAN_METHOD(Y);
 
   // Wrapped object
-  QWidgetImpl* q_;
-};
-
-//
-// QWidgetImpl()
-// Extends QWidget to implement virtual methods from QWidget
-//
-class QWidgetImpl : public QWidget {
- public:
-  QWidgetImpl(QWidgetImpl* parent, QWidgetWrap* wrapper) : QWidget(parent) {
-    this->wrapper = wrapper;
-  }
-
- protected:
-  QWidgetWrap* wrapper;
-  virtual void paintEvent(QPaintEvent* e) {
-    QWidget::paintEvent(e);
-    wrapper->paintEvent(e);
-  };
-  virtual void mousePressEvent(QMouseEvent* e) {
-    QWidget::mousePressEvent(e);
-    wrapper->mousePressEvent(e);
-  };
-  virtual void mouseReleaseEvent(QMouseEvent* e) {
-    QWidget::mouseReleaseEvent(e);
-    wrapper->mouseReleaseEvent(e);
-  };
-  virtual void mouseMoveEvent(QMouseEvent* e) {
-    QWidget::mouseMoveEvent(e);
-    wrapper->mouseMoveEvent(e);
-  };
-  virtual void keyPressEvent(QKeyEvent* e) {
-    QWidget::keyPressEvent(e);
-    wrapper->keyPressEvent(e);
-  };
-  virtual void keyReleaseEvent(QKeyEvent* e) {
-    QWidget::keyReleaseEvent(e);
-    wrapper->keyReleaseEvent(e);
-  };
+  QWidget* q_;
 };

@@ -35,14 +35,51 @@
 
 using namespace v8;
 
+//
+// QWidgetImpl()
+// Extends QWidget to implement virtual methods from QWidget
+//
+class QWidgetImpl : public QWidget {
+ public:
+  QWidgetImpl(QWidget* parent, QWidgetWrap* wrapper) : QWidget(parent) {
+    this->wrapper = wrapper;
+  }
+
+ protected:
+  QWidgetWrap* wrapper;
+  virtual void paintEvent(QPaintEvent* e) {
+    QWidget::paintEvent(e);
+    wrapper->paintEvent(e);
+  };
+  virtual void mousePressEvent(QMouseEvent* e) {
+    QWidget::mousePressEvent(e);
+    wrapper->mousePressEvent(e);
+  };
+  virtual void mouseReleaseEvent(QMouseEvent* e) {
+    QWidget::mouseReleaseEvent(e);
+    wrapper->mouseReleaseEvent(e);
+  };
+  virtual void mouseMoveEvent(QMouseEvent* e) {
+    QWidget::mouseMoveEvent(e);
+    wrapper->mouseMoveEvent(e);
+  };
+  virtual void keyPressEvent(QKeyEvent* e) {
+    QWidget::keyPressEvent(e);
+    wrapper->keyPressEvent(e);
+  };
+  virtual void keyReleaseEvent(QKeyEvent* e) {
+    QWidget::keyReleaseEvent(e);
+    wrapper->keyReleaseEvent(e);
+  };
+};
+
 Nan::Persistent<FunctionTemplate> QWidgetWrap::prototype;
 Nan::Persistent<Function> QWidgetWrap::constructor;
 
 //
 // QWidgetWrap()
 //
-
-QWidgetWrap::QWidgetWrap(QWidgetImpl* parent) {
+QWidgetWrap::QWidgetWrap(QWidget* parent) {
   q_ = new QWidgetImpl(parent, this);
 }
 
@@ -84,7 +121,7 @@ NAN_MODULE_INIT(QWidgetWrap::Initialize) {
 }
 
 NAN_METHOD(QWidgetWrap::New) {
-  QWidgetImpl* q_parent = 0;
+  QWidget* q_parent = 0;
 
   if (info.Length() > 0) {
     QWidgetWrap* w_parent = node::ObjectWrap::Unwrap<QWidgetWrap>(info[0]->ToObject());
@@ -97,7 +134,7 @@ NAN_METHOD(QWidgetWrap::New) {
 
 NAN_METHOD(QWidgetWrap::Resize) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->resize(info[0]->NumberValue(), info[1]->NumberValue());
 
@@ -106,7 +143,7 @@ NAN_METHOD(QWidgetWrap::Resize) {
 
 NAN_METHOD(QWidgetWrap::Show) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->show();
 
@@ -115,7 +152,7 @@ NAN_METHOD(QWidgetWrap::Show) {
 
 NAN_METHOD(QWidgetWrap::Close) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->close();
 
@@ -124,35 +161,35 @@ NAN_METHOD(QWidgetWrap::Close) {
 
 NAN_METHOD(QWidgetWrap::Size) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(QSizeWrap::NewInstance(q->size()));
 }
 
 NAN_METHOD(QWidgetWrap::Width) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->width()));
 }
 
 NAN_METHOD(QWidgetWrap::Height) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->height()));
 }
 
 NAN_METHOD(QWidgetWrap::ObjectName) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(qt_v8::FromQString(q->objectName()));
 }
 
 NAN_METHOD(QWidgetWrap::SetObjectName) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->setObjectName(qt_v8::ToQString(info[0]->ToString()));
 
@@ -167,14 +204,14 @@ NAN_METHOD(QWidgetWrap::SetObjectName) {
 //
 NAN_METHOD(QWidgetWrap::Parent) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(qt_v8::FromQString(q->parent()->objectName()));
 }
 
 NAN_METHOD(QWidgetWrap::Update) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->update();
 
@@ -183,14 +220,14 @@ NAN_METHOD(QWidgetWrap::Update) {
 
 NAN_METHOD(QWidgetWrap::HasMouseTracking) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->hasMouseTracking()));
 }
 
 NAN_METHOD(QWidgetWrap::SetMouseTracking) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->setMouseTracking(info[0]->BooleanValue());
 
@@ -199,7 +236,7 @@ NAN_METHOD(QWidgetWrap::SetMouseTracking) {
 
 NAN_METHOD(QWidgetWrap::SetFocusPolicy) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->setFocusPolicy((Qt::FocusPolicy)(info[0]->IntegerValue()));
 
@@ -210,7 +247,7 @@ NAN_METHOD(QWidgetWrap::SetFocusPolicy) {
 //    move (int x, int y)
 NAN_METHOD(QWidgetWrap::Move) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   q->move(info[0]->IntegerValue(), info[1]->IntegerValue());
 
@@ -219,14 +256,14 @@ NAN_METHOD(QWidgetWrap::Move) {
 
 NAN_METHOD(QWidgetWrap::X) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->x()));
 }
 
 NAN_METHOD(QWidgetWrap::Y) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
-  QWidgetImpl* q = w->GetWrapped();
+  QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->y()));
 }
