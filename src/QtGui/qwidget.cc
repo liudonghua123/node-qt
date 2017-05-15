@@ -110,6 +110,7 @@ NAN_MODULE_INIT(QWidgetWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "move", Move);
   Nan::SetPrototypeMethod(tpl, "x", X);
   Nan::SetPrototypeMethod(tpl, "y", Y);
+  Nan::SetPrototypeMethod(tpl, "sizeHint", SizeHint);
 
   // Events
   QWidgetWrapBase::Inherit(tpl);
@@ -132,11 +133,35 @@ NAN_METHOD(QWidgetWrap::New) {
   w->Wrap(info.This());
 }
 
+// Supported implementations:
+//    resize (int width, int height)
+//    resize (QSize size)
 NAN_METHOD(QWidgetWrap::Resize) {
   QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
   QWidget* q = w->GetWrapped();
 
-  q->resize(info[0]->NumberValue(), info[1]->NumberValue());
+  if (info.Length() == 2 && info[0]->IsNumber() && info[1]->IsNumber()) {
+    q->resize(info[0]->NumberValue(), info[1]->NumberValue());
+  }
+  else if(info.Length() == 1 && info[0]->IsObject()) {
+    QString objectConstructor = 
+        qt_v8::ToQString(info[0]->ToObject()->GetConstructorName());
+    
+    if (objectConstructor != "QSize") {
+      Nan::ThrowError(Exception::TypeError(
+        Nan::New("QWidget::Resize: bad argument").ToLocalChecked()));
+    }
+    
+    QSizeWrap* widgetWrapper = ObjectWrap::Unwrap<QSizeWrap>(
+        info[0]->ToObject());
+    QSize* size = widgetWrapper->GetWrapped();
+    
+    q->resize( *size );
+  }
+  else {
+    Nan::ThrowError(Exception::TypeError(
+      Nan::New("QWidget::Resize: bad argument").ToLocalChecked()));
+  }
 
   info.GetReturnValue().Set(Nan::Undefined());
 }
@@ -266,4 +291,11 @@ NAN_METHOD(QWidgetWrap::Y) {
   QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(Nan::New(q->y()));
+}
+
+NAN_METHOD(QWidgetWrap::SizeHint) {
+  QWidgetWrap* w = ObjectWrap::Unwrap<QWidgetWrap>(info.This());
+  QWidget* q = w->GetWrapped();
+
+  info.GetReturnValue().Set(QSizeWrap::NewInstance(q->sizeHint()));
 }
