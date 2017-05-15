@@ -132,7 +132,7 @@ NAN_METHOD(QPushButtonWrap::SetText) {
   }
   else {
     Nan::ThrowError(Exception::TypeError(
-      Nan::New("QPushButton::QPushButton: bad argument").ToLocalChecked()));
+      Nan::New("QPushButton::SetText: bad argument").ToLocalChecked()));
   }
 
   info.GetReturnValue().Set(Nan::Undefined());
