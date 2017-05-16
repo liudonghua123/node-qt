@@ -27,56 +27,27 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "QtCore/qsize.h"
-#include "QtCore/qpointf.h"
+#pragma once
 
-#include "QtGui/qapplication.h"
-#include "QtGui/qwidget.h"
-#include "QtGui/qmouseevent.h"
-#include "QtGui/qkeyevent.h"
-#include "QtGui/qpixmap.h"
-#include "QtGui/qpainter.h"
-#include "QtGui/qcolor.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qpen.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qpainterpath.h"
-#include "QtGui/qfont.h"
-#include "QtGui/qmatrix.h"
-#include "QtGui/qsound.h"
-#include "QtGui/qscrollarea.h"
-#include "QtGui/qscrollbar.h"
-#include "QtGui/qpushbutton.h"
-#include "QtGui/qlabel.h"
-#include "QtGui/qhboxlayout.h"
+#include <node.h>
+#include <nan.h>
+#include <QHBoxLayout>
 
-#include "QtTest/qtesteventlist.h"
+class QHBoxLayoutWrap : public node::ObjectWrap {
+ public:
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
+  QHBoxLayout* GetWrapped() const { return q_; };
 
-using namespace v8;
+ private:
+  static Nan::Persistent<v8::Function> constructor;
+  QHBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info);
+  ~QHBoxLayoutWrap();
+  static NAN_METHOD(New);
 
-void Initialize(Handle<Object> target) {
-  QApplicationWrap::Initialize(target);
-  QWidgetWrap::Initialize(target);
-  QSizeWrap::Initialize(target);
-  QMouseEventWrap::Initialize(target);
-  QKeyEventWrap::Initialize(target);
-  QTestEventListWrap::Initialize(target);
-  QPixmapWrap::Initialize(target);
-  QPainterWrap::Initialize(target);
-  QColorWrap::Initialize(target);
-  QBrushWrap::Initialize(target);
-  QPenWrap::Initialize(target);
-  QImageWrap::Initialize(target);
-  QPointFWrap::Initialize(target);
-  QPainterPathWrap::Initialize(target);
-  QFontWrap::Initialize(target);
-  QMatrixWrap::Initialize(target);
-  QSoundWrap::Initialize(target);
-  QScrollAreaWrap::Initialize(target);
-  QScrollBarWrap::Initialize(target);
-  QPushButtonWrap::Initialize(target);
-  QLabelWrap::Initialize(target);
-  QHBoxLayoutWrap::Initialize(target);
-}
+  // Wrapped methods
+  static NAN_METHOD(AddWidget);
 
-NODE_MODULE(qt, Initialize)
+  // Wrapped object
+  QHBoxLayout* q_;
+};
