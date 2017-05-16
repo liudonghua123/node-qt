@@ -43,4 +43,8 @@ inline v8::Local<v8::String> FromQString(QString str) {
   return Nan::New<v8::String>(str.utf16()).ToLocalChecked();
 }
 
+inline bool InstanceOf(v8::Local<v8::Value> value, Nan::Persistent<v8::FunctionTemplate>* prototype) {
+  return value->IsObject() && Nan::New(*prototype)->HasInstance(value);
+}
+
 } // namespace

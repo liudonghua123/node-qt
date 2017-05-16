@@ -75,22 +75,17 @@ Nan::Persistent<FunctionTemplate> QLabelWrap::prototype;
 Nan::Persistent<Function> QLabelWrap::constructor;
 
 QLabelWrap::QLabelWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
-  if (info[0]->IsString() && info[1]->IsObject()) {
+  if (info.Length() >= 1 && info[0]->IsString()) {
     QString text = qt_v8::ToQString(info[0]->ToString());
-
-    QString widgetConstructor = 
-        qt_v8::ToQString(info[1]->ToObject()->GetConstructorName());
-
-    if (widgetConstructor != "QWidget") {
-      Nan::ThrowError(Exception::TypeError(
-        Nan::New("QLabel::QLabel: bad argument").ToLocalChecked()));
+    QWidget* parent = NULL;
+    
+    if (info.Length() == 2 && qt_v8::InstanceOf(info[1], &QWidgetWrap::prototype)) {
+      QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
+          info[1]->ToObject());
+      parent = widgetWrapper->GetWrapped();
     }
 
-    QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
-        info[1]->ToObject());
-    QWidget* widget = widgetWrapper->GetWrapped();
-
-    q_ = new QLabelImpl(text, widget, this);
+    q_ = new QLabelImpl(text, parent, this);
   }
   else {
     Nan::ThrowError(Exception::TypeError(

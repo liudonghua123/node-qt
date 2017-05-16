@@ -75,22 +75,17 @@ Nan::Persistent<FunctionTemplate> QPushButtonWrap::prototype;
 Nan::Persistent<Function> QPushButtonWrap::constructor;
 
 QPushButtonWrap::QPushButtonWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
-  if (info[0]->IsString() && info[1]->IsObject()) {
+  if (info.Length() >= 1 && info[0]->IsString()) {
     QString text = qt_v8::ToQString(info[0]->ToString());
+    QWidget* parent = NULL;
     
-    QString widgetConstructor = 
-        qt_v8::ToQString(info[1]->ToObject()->GetConstructorName());
-    
-    if (widgetConstructor != "QWidget") {
-      Nan::ThrowError(Exception::TypeError(
-        Nan::New("QPushButton::QPushButton: bad argument").ToLocalChecked()));
+    if (info.Length() == 2 && qt_v8::InstanceOf(info[1], &QWidgetWrap::prototype)) {
+      QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
+          info[1]->ToObject());
+      parent = widgetWrapper->GetWrapped();
     }
-    
-    QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
-        info[1]->ToObject());
-    QWidget* widget = widgetWrapper->GetWrapped();
-    
-    q_ = new QPushButtonImpl(text, widget, this);
+  
+    q_ = new QPushButtonImpl(text, parent, this);
   }
   else {
     Nan::ThrowError(Exception::TypeError(
