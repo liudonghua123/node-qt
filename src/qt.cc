@@ -48,7 +48,7 @@
 #include "QtGui/qscrollbar.h"
 #include "QtGui/qpushbutton.h"
 #include "QtGui/qlabel.h"
-#include "QtGui/qhboxlayout.h"
+#include "QtGui/qboxlayout.h"
 
 #include "QtTest/qtesteventlist.h"
 
@@ -76,7 +76,7 @@ void Initialize(Handle<Object> target) {
   QScrollBarWrap::Initialize(target);
   QPushButtonWrap::Initialize(target);
   QLabelWrap::Initialize(target);
-  QHBoxLayoutWrap::Initialize(target);
+  QBoxLayoutWrap::Initialize(target);
 }
 
 NODE_MODULE(qt, Initialize)

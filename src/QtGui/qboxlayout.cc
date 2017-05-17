@@ -27,36 +27,36 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "qhboxlayout.h"
+#include "qboxlayout.h"
 #include "../qt_v8.h"
 #include "qwidget.h"
 
 using namespace v8;
 
-Nan::Persistent<FunctionTemplate> QHBoxLayoutWrap::prototype;
-Nan::Persistent<Function> QHBoxLayoutWrap::constructor;
+Nan::Persistent<FunctionTemplate> QBoxLayoutWrap::prototype;
+Nan::Persistent<Function> QBoxLayoutWrap::constructor;
 
-QHBoxLayoutWrap::QHBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
-  if (info.Length() == 1 && qt_v8::InstanceOf(info[0], &QWidgetWrap::prototype)) {
+QBoxLayoutWrap::QBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
+  if (info.Length() == 2 && info[0]->IsNumber() && qt_v8::InstanceOf(info[1], &QWidgetWrap::prototype)) {
     QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
-        info[0]->ToObject());
+        info[1]->ToObject());
 
-    q_ = new QHBoxLayout(widgetWrapper->GetWrapped());
+    q_ = new QBoxLayout((QBoxLayout::Direction) info[0]->NumberValue(), widgetWrapper->GetWrapped());
   }
   else {
     Nan::ThrowError(Exception::TypeError(
-      Nan::New("QHBoxLayout::QHBoxLayout: bad argument").ToLocalChecked()));
+      Nan::New("QBoxLayout::QBoxLayout: bad argument").ToLocalChecked()));
   }
 }
 
-QHBoxLayoutWrap::~QHBoxLayoutWrap() {
+QBoxLayoutWrap::~QBoxLayoutWrap() {
   delete q_;
 }
 
-NAN_MODULE_INIT(QHBoxLayoutWrap::Initialize) {
+NAN_MODULE_INIT(QBoxLayoutWrap::Initialize) {
   // Prepare constructor template
   Local<FunctionTemplate> tpl = Nan::New<FunctionTemplate>(New);
-  tpl->SetClassName(Nan::New("QHBoxLayout").ToLocalChecked());
+  tpl->SetClassName(Nan::New("QBoxLayout").ToLocalChecked());
   tpl->InstanceTemplate()->SetInternalFieldCount(1);  
 
   // Prototype
@@ -65,17 +65,17 @@ NAN_MODULE_INIT(QHBoxLayoutWrap::Initialize) {
   prototype.Reset(tpl);
   Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
   constructor.Reset(function);
-  Nan::Set(target, Nan::New("QHBoxLayout").ToLocalChecked(), function);
+  Nan::Set(target, Nan::New("QBoxLayout").ToLocalChecked(), function);
 }
 
-NAN_METHOD(QHBoxLayoutWrap::New) {
-  QHBoxLayoutWrap* w = new QHBoxLayoutWrap(info);
+NAN_METHOD(QBoxLayoutWrap::New) {
+  QBoxLayoutWrap* w = new QBoxLayoutWrap(info);
   w->Wrap(info.This());
 }
 
-NAN_METHOD(QHBoxLayoutWrap::AddWidget) {
-  QHBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QHBoxLayoutWrap>(info.This());
-  QHBoxLayout* q = w->GetWrapped();
+NAN_METHOD(QBoxLayoutWrap::AddWidget) {
+  QBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QBoxLayoutWrap>(info.This());
+  QBoxLayout* q = w->GetWrapped();
   
   if (info.Length() == 1 && qt_v8::InstanceOf(info[0], &QWidgetWrap::prototype)) {
     QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
@@ -85,7 +85,7 @@ NAN_METHOD(QHBoxLayoutWrap::AddWidget) {
   }
   else {
     Nan::ThrowError(Exception::TypeError(
-      Nan::New("QHBoxLayout::AddWidget: bad argument").ToLocalChecked()));
+      Nan::New("QBoxLayout::AddWidget: bad argument").ToLocalChecked()));
   }
 
   info.GetReturnValue().Set(Nan::Undefined());

@@ -27,7 +27,7 @@
         'src/QtGui/qscrollbar.cc',
         'src/QtGui/qpushbutton.cc',
         'src/QtGui/qlabel.cc',
-        'src/QtGui/qhboxlayout.cc',
+        'src/QtGui/qboxlayout.cc',
 
         'src/QtTest/qtesteventlist.cc'
       ],

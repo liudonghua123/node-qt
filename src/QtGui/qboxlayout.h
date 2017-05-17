@@ -31,23 +31,23 @@
 
 #include <node.h>
 #include <nan.h>
-#include <QHBoxLayout>
+#include <QBoxLayout>
 
-class QHBoxLayoutWrap : public node::ObjectWrap {
+class QBoxLayoutWrap : public node::ObjectWrap {
  public:
   static Nan::Persistent<v8::FunctionTemplate> prototype;
   static NAN_MODULE_INIT(Initialize);
-  QHBoxLayout* GetWrapped() const { return q_; };
+  QBoxLayout* GetWrapped() const { return q_; };
 
  private:
   static Nan::Persistent<v8::Function> constructor;
-  QHBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info);
-  ~QHBoxLayoutWrap();
+  QBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info);
+  ~QBoxLayoutWrap();
   static NAN_METHOD(New);
 
   // Wrapped methods
   static NAN_METHOD(AddWidget);
 
   // Wrapped object
-  QHBoxLayout* q_;
+  QBoxLayout* q_;
 };
