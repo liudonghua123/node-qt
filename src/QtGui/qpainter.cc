@@ -32,12 +32,12 @@
 #include "qpixmap.h"
 #include "qcolor.h"
 #include "qpen.h"
-#include "qwidget.h"
 #include "qbrush.h"
 #include "qimage.h"
 #include "qpainterpath.h"
 #include "qfont.h"
 #include "qmatrix.h"
+#include "../QtWidgets/qwidget.h"
 
 using namespace v8;
 

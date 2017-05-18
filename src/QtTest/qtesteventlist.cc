@@ -30,7 +30,7 @@
 #include <node.h>
 #include <nan.h>
 #include "../qt_v8.h"
-#include "../QtGui/qwidget.h"
+#include "../QtWidgets/qwidget.h"
 #include "qtesteventlist.h"
 
 using namespace v8;

@@ -2,8 +2,8 @@
 
 #include <node.h>
 #include <nan.h>
-#include "qmouseevent.h"
-#include "qkeyevent.h"
+#include "../QtGui/qmouseevent.h"
+#include "../QtGui/qkeyevent.h"
 
 class QWidgetWrapBase : public node::ObjectWrap {
  public:

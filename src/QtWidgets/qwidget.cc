@@ -30,8 +30,6 @@
 #include "../qt_v8.h"
 #include "../QtCore/qsize.h"
 #include "qwidget.h"
-#include "qmouseevent.h"
-#include "qkeyevent.h"
 
 using namespace v8;
 

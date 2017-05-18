@@ -30,8 +30,6 @@
 #include "QtCore/qsize.h"
 #include "QtCore/qpointf.h"
 
-#include "QtGui/qapplication.h"
-#include "QtGui/qwidget.h"
 #include "QtGui/qmouseevent.h"
 #include "QtGui/qkeyevent.h"
 #include "QtGui/qpixmap.h"
@@ -43,12 +41,16 @@
 #include "QtGui/qpainterpath.h"
 #include "QtGui/qfont.h"
 #include "QtGui/qmatrix.h"
-#include "QtGui/qsound.h"
-#include "QtGui/qscrollarea.h"
-#include "QtGui/qscrollbar.h"
-#include "QtGui/qpushbutton.h"
-#include "QtGui/qlabel.h"
-#include "QtGui/qboxlayout.h"
+
+#include "QtWidgets/qapplication.h"
+#include "QtWidgets/qwidget.h"
+#include "QtWidgets/qscrollarea.h"
+#include "QtWidgets/qscrollbar.h"
+#include "QtWidgets/qpushbutton.h"
+#include "QtWidgets/qlabel.h"
+#include "QtWidgets/qboxlayout.h"
+
+#include "QtMultimedia/qsound.h"
 
 #include "QtTest/qtesteventlist.h"
 

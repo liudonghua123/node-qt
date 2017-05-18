@@ -8,9 +8,6 @@
         'src/QtCore/qsize.cc',
         'src/QtCore/qpointf.cc',
 
-        'src/QtGui/qapplication.cc',
-        'src/QtGui/qwidgetwrapbase.cc',
-        'src/QtGui/qwidget.cc',
         'src/QtGui/qmouseevent.cc',
         'src/QtGui/qkeyevent.cc',
         'src/QtGui/qpixmap.cc',
@@ -22,12 +19,17 @@
         'src/QtGui/qpainterpath.cc',
         'src/QtGui/qfont.cc',
         'src/QtGui/qmatrix.cc',
-        'src/QtGui/qsound.cc',
-        'src/QtGui/qscrollarea.cc',
-        'src/QtGui/qscrollbar.cc',
-        'src/QtGui/qpushbutton.cc',
-        'src/QtGui/qlabel.cc',
-        'src/QtGui/qboxlayout.cc',
+        
+        'src/QtWidgets/qapplication.cc',
+        'src/QtWidgets/qwidgetwrapbase.cc',
+        'src/QtWidgets/qwidget.cc',
+        'src/QtWidgets/qscrollarea.cc',
+        'src/QtWidgets/qscrollbar.cc',
+        'src/QtWidgets/qpushbutton.cc',
+        'src/QtWidgets/qlabel.cc',
+        'src/QtWidgets/qboxlayout.cc',
+        
+        'src/QtMultimedia/qsound.cc',
 
         'src/QtTest/qtesteventlist.cc'
       ],
