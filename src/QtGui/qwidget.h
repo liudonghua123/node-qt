@@ -67,6 +67,7 @@ class QWidgetWrap : public QWidgetWrapBase {
   static NAN_METHOD(X);
   static NAN_METHOD(Y);
   static NAN_METHOD(SizeHint);
+  static NAN_METHOD(SetContentsMargins);
 
   // Wrapped object
   QWidget* q_;

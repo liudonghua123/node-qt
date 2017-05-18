@@ -111,6 +111,7 @@ NAN_MODULE_INIT(QWidgetWrap::Initialize) {
   Nan::SetPrototypeMethod(tpl, "x", X);
   Nan::SetPrototypeMethod(tpl, "y", Y);
   Nan::SetPrototypeMethod(tpl, "sizeHint", SizeHint);
+  Nan::SetPrototypeMethod(tpl, "setContentsMargins", SetContentsMargins);
 
   // Events
   QWidgetWrapBase::Inherit(tpl);
@@ -298,4 +299,15 @@ NAN_METHOD(QWidgetWrap::SizeHint) {
   QWidget* q = w->GetWrapped();
 
   info.GetReturnValue().Set(QSizeWrap::NewInstance(q->sizeHint()));
+}
+
+// Supported implementations:
+//    setContentsMargins (int left, int top, int right, int bottom)
+NAN_METHOD(QWidgetWrap::SetContentsMargins) {
+  QWidgetWrap* w = node::ObjectWrap::Unwrap<QWidgetWrap>(info.This());
+  QWidget* q = w->GetWrapped();
+
+  q->setContentsMargins(info[0]->NumberValue(), info[1]->NumberValue(), info[2]->NumberValue(), info[3]->NumberValue());
+
+  info.GetReturnValue().Set(Nan::Undefined());
 }
