@@ -61,6 +61,8 @@ NAN_MODULE_INIT(QBoxLayoutWrap::Initialize) {
 
   // Prototype
   Nan::SetPrototypeMethod(tpl, "addWidget", AddWidget);
+  Nan::SetPrototypeMethod(tpl, "setSpacing", SetSpacing);
+  Nan::SetPrototypeMethod(tpl, "setContentsMargins", SetContentsMargins);
 
   prototype.Reset(tpl);
   Local<Function> function = Nan::GetFunction(tpl).ToLocalChecked();
@@ -73,20 +75,54 @@ NAN_METHOD(QBoxLayoutWrap::New) {
   w->Wrap(info.This());
 }
 
+// Supported implementations:
+//    addWidget (QWidget widget)
+//    addWidget (QWidget widget, int stretch)
 NAN_METHOD(QBoxLayoutWrap::AddWidget) {
   QBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QBoxLayoutWrap>(info.This());
   QBoxLayout* q = w->GetWrapped();
   
-  if (info.Length() == 1 && qt_v8::InstanceOf(info[0], &QWidgetWrap::prototype)) {
+  if (info.Length() >= 1 && qt_v8::InstanceOf(info[0], &QWidgetWrap::prototype)) {
     QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
         info[0]->ToObject());
   
-    q->addWidget(widgetWrapper->GetWrapped());
+    if (info.Length() == 2 && info[1]->IsNumber()) {
+      q->addWidget(widgetWrapper->GetWrapped(), info[1]->NumberValue());
+    }
+    else {
+      q->addWidget(widgetWrapper->GetWrapped());
+    }
   }
   else {
     Nan::ThrowError(Exception::TypeError(
       Nan::New("QBoxLayout::AddWidget: bad argument").ToLocalChecked()));
   }
+
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+NAN_METHOD(QBoxLayoutWrap::SetSpacing) {
+  if (info.Length() == 1 && info[0]->IsNumber()) {
+    QBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QBoxLayoutWrap>(info.This());
+    QBoxLayout* q = w->GetWrapped();
+    
+    q->setSpacing(info[0]->NumberValue());
+  }
+  else {
+    Nan::ThrowError(Exception::TypeError(
+      Nan::New("QBoxLayout::AddWidget: bad argument").ToLocalChecked()));
+  }
+  
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+// Supported implementations:
+//    setContentsMargins (int left, int top, int right, int bottom)
+NAN_METHOD(QBoxLayoutWrap::SetContentsMargins) {
+  QBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QBoxLayoutWrap>(info.This());
+  QBoxLayout* q = w->GetWrapped();
+  
+  q->setContentsMargins(info[0]->NumberValue(), info[1]->NumberValue(), info[2]->NumberValue(), info[3]->NumberValue());
 
   info.GetReturnValue().Set(Nan::Undefined());
 }
