@@ -27,6 +27,7 @@
         'src/QtWidgets/qscrollbar.cc',
         'src/QtWidgets/qpushbutton.cc',
         'src/QtWidgets/qlabel.cc',
+        'src/QtWidgets/qlineedit.cc',
         'src/QtWidgets/qboxlayout.cc',
         
         'src/QtMultimedia/qsound.cc',

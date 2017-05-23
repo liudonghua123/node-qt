@@ -27,60 +27,30 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "QtCore/qsize.h"
-#include "QtCore/qpointf.h"
+#pragma once
 
-#include "QtGui/qmouseevent.h"
-#include "QtGui/qkeyevent.h"
-#include "QtGui/qpixmap.h"
-#include "QtGui/qpainter.h"
-#include "QtGui/qcolor.h"
-#include "QtGui/qbrush.h"
-#include "QtGui/qpen.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qpainterpath.h"
-#include "QtGui/qfont.h"
-#include "QtGui/qmatrix.h"
+#include <node.h>
+#include <nan.h>
+#include <QLineEdit>
+#include "qwidget.h"
+#include "qwidgetwrapbase.h"
 
-#include "QtWidgets/qapplication.h"
-#include "QtWidgets/qwidget.h"
-#include "QtWidgets/qscrollarea.h"
-#include "QtWidgets/qscrollbar.h"
-#include "QtWidgets/qpushbutton.h"
-#include "QtWidgets/qlabel.h"
-#include "QtWidgets/qlineedit.h"
-#include "QtWidgets/qboxlayout.h"
+class QLineEditWrap : public QWidgetWrapBase {
+ public:
+  static Nan::Persistent<v8::FunctionTemplate> prototype;
+  static NAN_MODULE_INIT(Initialize);
+  QLineEdit* GetWrapped() const { return q_; };
 
-#include "QtMultimedia/qsound.h"
+ private:
+  static Nan::Persistent<v8::Function> constructor;
+  QLineEditWrap(Nan::NAN_METHOD_ARGS_TYPE info);
+  ~QLineEditWrap();
+  static NAN_METHOD(New);
 
-#include "QtTest/qtesteventlist.h"
+  // Wrapped methods
+  static NAN_METHOD(Text);
+  static NAN_METHOD(SetText);
 
-using namespace v8;
-
-void Initialize(Handle<Object> target) {
-  QApplicationWrap::Initialize(target);
-  QWidgetWrap::Initialize(target);
-  QSizeWrap::Initialize(target);
-  QMouseEventWrap::Initialize(target);
-  QKeyEventWrap::Initialize(target);
-  QTestEventListWrap::Initialize(target);
-  QPixmapWrap::Initialize(target);
-  QPainterWrap::Initialize(target);
-  QColorWrap::Initialize(target);
-  QBrushWrap::Initialize(target);
-  QPenWrap::Initialize(target);
-  QImageWrap::Initialize(target);
-  QPointFWrap::Initialize(target);
-  QPainterPathWrap::Initialize(target);
-  QFontWrap::Initialize(target);
-  QMatrixWrap::Initialize(target);
-  QSoundWrap::Initialize(target);
-  QScrollAreaWrap::Initialize(target);
-  QScrollBarWrap::Initialize(target);
-  QPushButtonWrap::Initialize(target);
-  QLabelWrap::Initialize(target);
-  QLineEditWrap::Initialize(target);
-  QBoxLayoutWrap::Initialize(target);
-}
-
-NODE_MODULE(qt, Initialize)
+  // Wrapped object
+  QLineEdit* q_;
+};
