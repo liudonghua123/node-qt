@@ -75,17 +75,15 @@ Nan::Persistent<FunctionTemplate> QLineEditWrap::prototype;
 Nan::Persistent<Function> QLineEditWrap::constructor;
 
 QLineEditWrap::QLineEditWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
+  QWidget* parent = NULL;
+  
   if (info.Length() == 1 && qt_v8::InstanceOf(info[0], &QWidgetWrap::prototype)) {
     QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
         info[0]->ToObject());
-    QWidget* parent = widgetWrapper->GetWrapped();
-
-    q_ = new QLineEditImpl(parent, this);
+    parent = widgetWrapper->GetWrapped();
   }
-  else {
-    Nan::ThrowError(Exception::TypeError(
-      Nan::New("QLineEdit::QLineEdit: bad argument").ToLocalChecked()));
-  }
+  
+  q_ = new QLineEditImpl(parent, this);
 }
 
 QLineEditWrap::~QLineEditWrap() {
