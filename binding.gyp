@@ -29,6 +29,7 @@
         'src/QtWidgets/qlabel.cc',
         'src/QtWidgets/qlineedit.cc',
         'src/QtWidgets/qboxlayout.cc',
+        'src/QtWidgets/qplaintextedit.cc',
         
         'src/QtMultimedia/qsound.cc',
 

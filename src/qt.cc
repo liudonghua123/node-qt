@@ -50,6 +50,7 @@
 #include "QtWidgets/qlabel.h"
 #include "QtWidgets/qlineedit.h"
 #include "QtWidgets/qboxlayout.h"
+#include "QtWidgets/qplaintextedit.h"
 
 #include "QtMultimedia/qsound.h"
 
@@ -81,6 +82,7 @@ void Initialize(Handle<Object> target) {
   QLabelWrap::Initialize(target);
   QLineEditWrap::Initialize(target);
   QBoxLayoutWrap::Initialize(target);
+  QPlainTextEditWrap::Initialize(target);
 }
 
 NODE_MODULE(qt, Initialize)
