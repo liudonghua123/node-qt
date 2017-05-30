@@ -37,11 +37,16 @@ Nan::Persistent<FunctionTemplate> QBoxLayoutWrap::prototype;
 Nan::Persistent<Function> QBoxLayoutWrap::constructor;
 
 QBoxLayoutWrap::QBoxLayoutWrap(Nan::NAN_METHOD_ARGS_TYPE info) {
-  if (info.Length() == 2 && info[0]->IsNumber() && qt_v8::InstanceOf(info[1], &QWidgetWrap::prototype)) {
-    QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
-        info[1]->ToObject());
-
-    q_ = new QBoxLayout((QBoxLayout::Direction) info[0]->NumberValue(), widgetWrapper->GetWrapped());
+  if (info.Length() >= 1 && info[0]->IsNumber()) {
+    QWidget* parent = NULL;
+    
+    if (info.Length() == 2 && qt_v8::InstanceOf(info[1], &QWidgetWrap::prototype)) {
+      QWidgetWrap* widgetWrapper = ObjectWrap::Unwrap<QWidgetWrap>(
+          info[1]->ToObject());
+      parent = widgetWrapper->GetWrapped();
+    }
+    
+    q_ = new QBoxLayout((QBoxLayout::Direction) info[0]->NumberValue(), parent);
   }
   else {
     Nan::ThrowError(Exception::TypeError(
@@ -61,6 +66,7 @@ NAN_MODULE_INIT(QBoxLayoutWrap::Initialize) {
 
   // Prototype
   Nan::SetPrototypeMethod(tpl, "addWidget", AddWidget);
+  Nan::SetPrototypeMethod(tpl, "addLayout", AddLayout);
   Nan::SetPrototypeMethod(tpl, "setSpacing", SetSpacing);
   Nan::SetPrototypeMethod(tpl, "setContentsMargins", SetContentsMargins);
 
@@ -96,6 +102,32 @@ NAN_METHOD(QBoxLayoutWrap::AddWidget) {
   else {
     Nan::ThrowError(Exception::TypeError(
       Nan::New("QBoxLayout::AddWidget: bad argument").ToLocalChecked()));
+  }
+
+  info.GetReturnValue().Set(Nan::Undefined());
+}
+
+// Supported implementations:
+//    addLayout (QLayout layout)
+//    addLayout (QLayout layout, int stretch)
+NAN_METHOD(QBoxLayoutWrap::AddLayout) {
+  QBoxLayoutWrap* w = node::ObjectWrap::Unwrap<QBoxLayoutWrap>(info.This());
+  QBoxLayout* q = w->GetWrapped();
+
+  if (info.Length() >= 1 && qt_v8::InstanceOf(info[0], &QBoxLayoutWrap::prototype)) {
+    QBoxLayoutWrap* widgetWrapper = ObjectWrap::Unwrap<QBoxLayoutWrap>(
+        info[0]->ToObject());
+
+    if (info.Length() == 2 && info[1]->IsNumber()) {
+      q->addLayout(widgetWrapper->GetWrapped(), info[1]->NumberValue());
+    }
+    else {
+      q->addLayout(widgetWrapper->GetWrapped());
+    }
+  }
+  else {
+    Nan::ThrowError(Exception::TypeError(
+      Nan::New("QBoxLayout::AddLayout: bad argument").ToLocalChecked()));
   }
 
   info.GetReturnValue().Set(Nan::Undefined());

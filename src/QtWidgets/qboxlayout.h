@@ -47,6 +47,7 @@ class QBoxLayoutWrap : public node::ObjectWrap {
 
   // Wrapped methods
   static NAN_METHOD(AddWidget);
+  static NAN_METHOD(AddLayout);
   static NAN_METHOD(SetSpacing);
   static NAN_METHOD(SetContentsMargins);
 
