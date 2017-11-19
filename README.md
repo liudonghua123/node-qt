@@ -48,8 +48,10 @@ app.exec();
 
 From your project directory, run (see below for requirements):
 
+
+*This is the only thing I've done with this fork. It fixes build errors on linux and is based on tsbehlmans fork and so I published it as `shimmy-shimmy-yam-qt`.*
 ```
-$ npm install node-qt
+$ npm install shimmy-shimmy-yam-qt
 ```
 
 Alternatively, to use the latest development version from Github:
