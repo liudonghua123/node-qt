@@ -1,6 +1,6 @@
 {
   "name": "shimmy-shimmy-yam-qt",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "lgideon <levigideon@gmail.com>",
   "description": "Qt bindings for Node.js",
   "repository": {
